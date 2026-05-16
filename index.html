@@ -5,1253 +5,646 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Family Fooder</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-  :root {
-    --orange: #FF6B35;
-    --yellow: #FFD23F;
-    --red: #EE4266;
-    --green: #06D6A0;
-    --purple: #7B2D8B;
-    --dark: #1A1A2E;
-    --darker: #0F0F1A;
-    --card: #16213E;
-    --card2: #1a2744;
-    --text: #F8F9FA;
-    --muted: #8892a4;
-    --border: rgba(255,255,255,0.08);
-  }
+:root{--orange:#FF6B35;--yellow:#FFD23F;--red:#EE4266;--green:#06D6A0;--purple:#7B2D8B;--dark:#1A1A2E;--darker:#0F0F1A;--card:#16213E;--card2:#1a2744;--text:#F8F9FA;--muted:#8892a4;--border:rgba(255,255,255,0.08)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--darker);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,107,53,.06) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(238,66,102,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+.screen{display:none;min-height:100vh;width:100%;position:relative;z-index:1;padding:20px;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .4s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes glow{0%,100%{text-shadow:0 0 20px rgba(255,107,53,.5),0 0 40px rgba(255,107,53,.3)}50%{text-shadow:0 0 30px rgba(255,210,63,.7),0 0 60px rgba(255,210,63,.4)}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+.logo{font-family:'Fredoka One',cursive;font-size:clamp(48px,14vw,88px);background:linear-gradient(135deg,var(--orange),var(--yellow),var(--red));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite,glow 2s ease-in-out infinite;line-height:1;text-align:center}
+.logo-sm{font-family:'Fredoka One',cursive;font-size:34px;background:linear-gradient(135deg,var(--orange),var(--yellow),var(--red));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite;line-height:1;text-align:center;margin-bottom:4px}
+.logo-icons{display:flex;gap:10px;font-size:28px;justify-content:center;margin-bottom:8px;animation:bounce 2s ease-in-out infinite}
+.created-by{font-size:13px;color:var(--muted);text-align:center;font-weight:600;letter-spacing:.5px;margin-top:6px}
+.typewriter{color:var(--yellow);border-right:2px solid var(--yellow);white-space:nowrap;overflow:hidden}
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--darker);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
+.btn{display:block;width:100%;max-width:360px;padding:16px 24px;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn+.btn{margin-top:12px}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;box-shadow:0 8px 24px rgba(255,107,53,.35)}
+.btn-primary:hover{box-shadow:0 10px 30px rgba(255,107,53,.5);transform:translateY(-1px)}
+.btn-secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--card2)}
+.btn-green{background:linear-gradient(135deg,var(--green),#04a87c);color:#0F3028;box-shadow:0 8px 24px rgba(6,214,160,.3);font-size:20px}
+.btn-red{background:linear-gradient(135deg,var(--red),#c7284a);color:#fff;box-shadow:0 8px 24px rgba(238,66,102,.3)}
+.btn:disabled{opacity:.4!important;cursor:not-allowed!important;transform:none!important}
 
-  /* Animated food background dots */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(255,107,53,0.06) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(238,66,102,0.06) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(6,214,160,0.03) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+.input-field{width:100%;max-width:360px;padding:16px 20px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;outline:none;transition:border-color .2s,box-shadow .2s;text-align:center;letter-spacing:1px}
+.input-field:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,107,53,.15)}
+.input-field::placeholder{color:var(--muted);font-weight:600;letter-spacing:0}
+.input-field+.input-field{margin-top:10px}
 
-  .screen {
-    display: none;
-    min-height: 100vh;
-    width: 100%;
-    position: relative;
-    z-index: 1;
-    padding: 20px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.4s ease;
-  }
-  .screen.active { display: flex; }
+.code-box{background:linear-gradient(135deg,var(--card),var(--card2));border:2px solid var(--orange);border-radius:20px;padding:20px 32px;text-align:center;width:100%;max-width:360px}
+.code-label{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--orange);text-transform:uppercase}
+.code-value{font-family:'Fredoka One',cursive;font-size:52px;color:var(--yellow);letter-spacing:8px;line-height:1.1;text-shadow:0 0 20px rgba(255,210,63,.4)}
 
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-  @keyframes glow {
-    0%,100% { text-shadow: 0 0 20px rgba(255,107,53,0.5), 0 0 40px rgba(255,107,53,0.3); }
-    50% { text-shadow: 0 0 30px rgba(255,210,63,0.7), 0 0 60px rgba(255,210,63,0.4); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
-  @keyframes confettiFall {
-    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-  @keyframes barGrow { from { width: 0; } to { width: var(--w); } }
+.players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;max-width:420px}
+.player-chip{background:var(--card2);border:1px solid var(--border);border-radius:40px;padding:8px 16px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;animation:popIn .3s ease}
+.player-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+.host-badge{background:linear-gradient(135deg,var(--yellow),#ffb700);color:#3d2000;font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:10px;text-transform:uppercase;margin-left:4px}
 
-  /* ===== LOGO ===== */
-  .logo {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(52px, 15vw, 90px);
-    background: linear-gradient(135deg, var(--orange), var(--yellow), var(--red));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s linear infinite, glow 2s ease-in-out infinite;
-    line-height: 1;
-    letter-spacing: -1px;
-    text-align: center;
-  }
+.section-title{font-size:22px;font-weight:900;text-align:center;margin-bottom:6px}
+.section-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px;font-weight:600}
+.round-badge{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center}
 
-  .logo-food-icons {
-    display: flex;
-    gap: 10px;
-    font-size: 28px;
-    justify-content: center;
-    margin-bottom: 8px;
-    animation: bounce 2s ease-in-out infinite;
-  }
+.loader{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:20px auto}
+.dots-loader{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.dots-loader span{width:10px;height:10px;border-radius:50%;background:var(--orange);animation:bounce 1s ease-in-out infinite}
+.dots-loader span:nth-child(2){animation-delay:.15s;background:var(--yellow)}
+.dots-loader span:nth-child(3){animation-delay:.3s;background:var(--red)}
 
-  .created-by {
-    font-size: 13px;
-    color: var(--muted);
-    text-align: center;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-top: 6px;
-  }
-  .created-by span.typewriter {
-    color: var(--yellow);
-    border-right: 2px solid var(--yellow);
-    white-space: nowrap;
-    overflow: hidden;
-  }
+.restaurant-input-wrap{position:relative;width:100%;max-width:360px;margin-bottom:10px}
+.rest-num{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:var(--orange)}
+.restaurant-input-wrap .input-field{padding-left:40px;text-align:left}
 
-  /* ===== BUTTONS ===== */
-  .btn {
-    display: block;
-    width: 100%;
-    max-width: 360px;
-    padding: 16px 24px;
-    border: none;
-    border-radius: 16px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--orange), var(--red));
-    color: white;
-    box-shadow: 0 8px 24px rgba(255,107,53,0.35);
-  }
-  .btn-primary:hover { box-shadow: 0 10px 30px rgba(255,107,53,0.5); transform: translateY(-1px); }
-  .btn-secondary {
-    background: var(--card);
-    color: var(--text);
-    border: 1.5px solid var(--border);
-  }
-  .btn-secondary:hover { background: var(--card2); }
-  .btn-green {
-    background: linear-gradient(135deg, var(--green), #04a87c);
-    color: #0F3028;
-    box-shadow: 0 8px 24px rgba(6,214,160,0.3);
-    font-size: 20px;
-  }
-  .btn-red {
-    background: linear-gradient(135deg, var(--red), #c7284a);
-    color: white;
-    box-shadow: 0 8px 24px rgba(238,66,102,0.3);
-  }
-  .btn + .btn { margin-top: 12px; }
+.vote-option{width:100%;max-width:360px;background:var(--card);border:2px solid var(--border);border-radius:18px;padding:18px 20px;cursor:pointer;transition:all .2s;margin-bottom:10px;text-align:left;font-family:'Nunito',sans-serif;display:block}
+.vote-option:hover{border-color:var(--orange);background:var(--card2)}
+.vote-option.selected{border-color:var(--orange);background:rgba(255,107,53,.1)}
+.vote-emoji{font-size:32px;margin-bottom:6px}
+.vote-name{font-size:19px;font-weight:800;color:var(--text)}
 
-  /* ===== INPUT ===== */
-  .input-field {
-    width: 100%;
-    max-width: 360px;
-    padding: 16px 20px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    color: var(--text);
-    font-family: 'Nunito', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    text-align: center;
-    letter-spacing: 1px;
-  }
-  .input-field:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,107,53,0.15); }
-  .input-field::placeholder { color: var(--muted); font-weight: 600; letter-spacing: 0; }
-  .input-field + .input-field { margin-top: 10px; }
+.result-bar-wrap{margin-bottom:14px;width:100%;max-width:400px}
+.result-bar-label{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px}
+.result-bar-bg{background:var(--card);border-radius:8px;height:12px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));width:var(--w);animation:barGrow 1s ease}
+.result-bar-fill.win{background:linear-gradient(90deg,var(--green),#04d48a)}
 
-  /* ===== CARD ===== */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-    width: 100%;
-    max-width: 420px;
-  }
+.winner-card{background:linear-gradient(135deg,rgba(6,214,160,.15),rgba(6,214,160,.05));border:2px solid var(--green);border-radius:24px;padding:28px;text-align:center;width:100%;max-width:380px;animation:popIn .5s ease}
+.winner-emoji{font-size:64px;animation:bounce 1.5s ease-in-out infinite;display:block}
+.winner-name{font-family:'Fredoka One',cursive;font-size:38px;color:var(--green);margin:8px 0 4px;text-shadow:0 0 20px rgba(6,214,160,.4)}
+.winner-sub{font-size:14px;color:var(--muted);font-weight:600}
 
-  /* ===== PARTY CODE ===== */
-  .party-code-display {
-    background: linear-gradient(135deg, var(--card), var(--card2));
-    border: 2px solid var(--orange);
-    border-radius: 20px;
-    padding: 20px 32px;
-    text-align: center;
-    position: relative;
-  }
-  .party-code-label { font-size: 11px; font-weight: 800; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; }
-  .party-code-value {
-    font-family: 'Fredoka One', cursive;
-    font-size: 52px;
-    color: var(--yellow);
-    letter-spacing: 8px;
-    line-height: 1.1;
-    text-shadow: 0 0 20px rgba(255,210,63,0.4);
-  }
+.progress-bar{width:100%;max-width:360px;background:var(--card);border-radius:8px;height:6px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));transition:width .5s ease}
 
-  /* ===== PLAYER LIST ===== */
-  .players-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    width: 100%;
-    max-width: 420px;
-  }
-  .player-chip {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 40px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    animation: popIn 0.3s ease;
-  }
-  .player-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800; color: white;
-  }
-
-  /* ===== SECTION TITLE ===== */
-  .section-title {
-    font-size: 22px;
-    font-weight: 900;
-    text-align: center;
-    margin-bottom: 6px;
-  }
-  .section-sub {
-    font-size: 14px;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: 600;
-  }
-
-  /* ===== LOADER ===== */
-  .loader {
-    width: 48px; height: 48px;
-    border: 4px solid var(--border);
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 20px auto;
-  }
-  .dots-loader {
-    display: flex; gap: 8px; justify-content: center; margin: 16px 0;
-  }
-  .dots-loader span {
-    width: 10px; height: 10px; border-radius: 50%; background: var(--orange);
-    animation: bounce 1s ease-in-out infinite;
-  }
-  .dots-loader span:nth-child(2) { animation-delay: 0.15s; background: var(--yellow); }
-  .dots-loader span:nth-child(3) { animation-delay: 0.3s; background: var(--red); }
-
-  /* ===== RESTAURANT INPUTS ===== */
-  .restaurant-input-wrap {
-    position: relative; width: 100%; max-width: 360px; margin-bottom: 10px;
-  }
-  .rest-num {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    font-size: 13px; font-weight: 800; color: var(--orange);
-  }
-  .restaurant-input-wrap .input-field { padding-left: 40px; text-align: left; }
-
-  /* ===== VOTE OPTIONS ===== */
-  .vote-option {
-    width: 100%;
-    max-width: 360px;
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 18px;
-    padding: 18px 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 10px;
-    text-align: left;
-    font-family: 'Nunito', sans-serif;
-  }
-  .vote-option:hover { border-color: var(--orange); background: var(--card2); }
-  .vote-option.selected { border-color: var(--orange); background: rgba(255,107,53,0.1); }
-  .vote-option.disabled-opt { opacity: 0.5; cursor: not-allowed; }
-  .vote-emoji { font-size: 32px; margin-bottom: 6px; }
-  .vote-name { font-size: 19px; font-weight: 800; color: var(--text); }
-  .vote-checkmark {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--orange); display: flex; align-items: center;
-    justify-content: center; margin-left: auto;
-    font-size: 16px; flex-shrink: 0;
-  }
-  .vote-row { display: flex; align-items: center; }
-
-  /* ===== RESULTS BAR ===== */
-  .result-bar-wrap { margin-bottom: 14px; width: 100%; max-width: 400px; }
-  .result-bar-label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-  .result-bar-bg { background: var(--card); border-radius: 8px; height: 12px; overflow: hidden; }
-  .result-bar-fill {
-    height: 100%; border-radius: 8px;
-    background: linear-gradient(90deg, var(--orange), var(--yellow));
-    width: var(--w); transition: width 1s ease;
-    animation: barGrow 1s ease;
-  }
-  .result-bar-fill.winner { background: linear-gradient(90deg, var(--green), #04d48a); }
-
-  /* ===== WINNER CARD ===== */
-  .winner-card {
-    background: linear-gradient(135deg, rgba(6,214,160,0.15), rgba(6,214,160,0.05));
-    border: 2px solid var(--green);
-    border-radius: 24px;
-    padding: 28px;
-    text-align: center;
-    width: 100%;
-    max-width: 380px;
-    animation: popIn 0.5s ease;
-  }
-  .winner-emoji { font-size: 64px; animation: bounce 1.5s ease-in-out infinite; }
-  .winner-name {
-    font-family: 'Fredoka One', cursive;
-    font-size: 38px;
-    color: var(--green);
-    margin: 8px 0 4px;
-    text-shadow: 0 0 20px rgba(6,214,160,0.4);
-  }
-  .winner-sub { font-size: 14px; color: var(--muted); font-weight: 600; }
-
-  /* ===== CONFETTI ===== */
-  .confetti-piece {
-    position: fixed;
-    width: 10px; height: 10px;
-    border-radius: 2px;
-    animation: confettiFall linear forwards;
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* ===== MISC ===== */
-  .divider { width: 100%; max-width: 360px; height: 1px; background: var(--border); margin: 16px 0; }
-  .tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
-  .tag-orange { background: rgba(255,107,53,0.15); color: var(--orange); }
-  .tag-green { background: rgba(6,214,160,0.15); color: var(--green); }
-  .tag-yellow { background: rgba(255,210,63,0.15); color: var(--yellow); }
-
-  .progress-bar {
-    width: 100%; max-width: 360px;
-    background: var(--card);
-    border-radius: 8px; height: 6px; overflow: hidden; margin: 12px 0;
-  }
-  .progress-fill {
-    height: 100%; border-radius: 8px;
-    background: linear-gradient(90deg, var(--orange), var(--yellow));
-    transition: width 0.5s ease;
-  }
-
-  .waiting-text { font-size: 14px; color: var(--muted); font-weight: 600; text-align: center; margin-top: 8px; }
-  .player-count-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.25);
-    border-radius: 20px; padding: 6px 14px;
-    font-size: 14px; font-weight: 800; color: var(--orange);
-  }
-  .eliminated-list { margin-top: 10px; font-size: 13px; color: var(--muted); font-weight: 600; text-align: center; }
-  .eliminated-item { display: inline-block; margin: 3px 6px; text-decoration: line-through; }
-
-  .round-badge {
-    font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 8px; text-align: center;
-  }
-
-  .host-badge {
-    background: linear-gradient(135deg, var(--yellow), #ffb700);
-    color: #3d2000;
-    font-size: 10px; font-weight: 800; letter-spacing: 1px;
-    padding: 2px 8px; border-radius: 10px; text-transform: uppercase;
-    margin-left: 6px; vertical-align: middle;
-  }
-
-  .error-msg {
-    background: rgba(238,66,102,0.12);
-    border: 1px solid rgba(238,66,102,0.3);
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 13px; font-weight: 700;
-    color: #ff8fa8;
-    text-align: center;
-    width: 100%; max-width: 360px;
-    margin-top: 8px;
-    animation: popIn 0.3s ease;
-  }
-
-  .food-bg-emoji {
-    position: fixed; font-size: 30px; opacity: 0.04;
-    pointer-events: none; z-index: 0; animation: bounce 3s ease-in-out infinite;
-  }
-
-  @media (max-width: 380px) {
-    .logo { font-size: 44px; }
-    .party-code-value { font-size: 40px; letter-spacing: 4px; }
-  }
+.error-msg{background:rgba(238,66,102,.12);border:1px solid rgba(238,66,102,.3);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:#ff8fa8;text-align:center;width:100%;max-width:360px;margin-top:8px;animation:popIn .3s ease}
+.waiting-text{font-size:14px;color:var(--muted);font-weight:600;text-align:center;margin-top:8px}
+.pcount-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.25);border-radius:20px;padding:6px 14px;font-size:14px;font-weight:800;color:var(--orange)}
+.tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800}
+.tag-o{background:rgba(255,107,53,.15);color:var(--orange)}
+.tag-g{background:rgba(6,214,160,.15);color:var(--green)}
+.elim-list{margin-top:10px;font-size:13px;color:var(--muted);font-weight:600;text-align:center}
+.elim-item{display:inline-block;margin:3px 6px;text-decoration:line-through}
+.food-bg{position:fixed;font-size:30px;opacity:.04;pointer-events:none;z-index:0;animation:bounce 3s ease-in-out infinite}
+.confetti-piece{position:fixed;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;z-index:9999}
 </style>
 </head>
 <body>
 
-<!-- Food background decoration -->
-<div class="food-bg-emoji" style="top:8%;left:5%;animation-delay:0s">🍕</div>
-<div class="food-bg-emoji" style="top:20%;right:8%;animation-delay:0.5s">🍔</div>
-<div class="food-bg-emoji" style="top:45%;left:3%;animation-delay:1s">🌮</div>
-<div class="food-bg-emoji" style="top:65%;right:5%;animation-delay:1.5s">🍣</div>
-<div class="food-bg-emoji" style="bottom:15%;left:10%;animation-delay:2s">🍜</div>
-<div class="food-bg-emoji" style="bottom:8%;right:12%;animation-delay:0.8s">🍦</div>
+<div class="food-bg" style="top:8%;left:5%">🍕</div>
+<div class="food-bg" style="top:20%;right:8%;animation-delay:.5s">🍔</div>
+<div class="food-bg" style="top:45%;left:3%;animation-delay:1s">🌮</div>
+<div class="food-bg" style="top:65%;right:5%;animation-delay:1.5s">🍣</div>
+<div class="food-bg" style="bottom:15%;left:10%;animation-delay:2s">🍜</div>
+<div class="food-bg" style="bottom:8%;right:12%;animation-delay:.8s">🍦</div>
 
-<!-- ============================================================
-     SCREEN 1: HOME
-     ============================================================ -->
-<div class="screen active" id="screen-home">
-  <div class="logo-food-icons">🍕 🍔 🌮</div>
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="logo-icons">🍕 🍔 🌮</div>
   <div class="logo">Family Fooder</div>
-  <div class="created-by">
-    created by <span class="typewriter" id="typewriter-home"></span>
-  </div>
-  <div style="height: 40px;"></div>
-  <button class="btn btn-primary" onclick="showScreen('screen-create')">🎉 Host a Party</button>
-  <button class="btn btn-secondary" style="margin-top:12px" onclick="showScreen('screen-join')">🔗 Join a Party</button>
-  <div style="margin-top: 24px; font-size: 12px; color: var(--muted); text-align:center; font-weight: 600; max-width: 280px;">
-    Gather the crew. Pick a restaurant. No more arguing! 🍽️
-  </div>
+  <div class="created-by">created by <span class="typewriter" id="tw-home"></span></div>
+  <div style="height:40px"></div>
+  <button class="btn btn-primary" onclick="go('s-create')">🎉 Host a Party</button>
+  <button class="btn btn-secondary" onclick="go('s-join')">🔗 Join a Party</button>
+  <div style="margin-top:24px;font-size:12px;color:var(--muted);text-align:center;font-weight:600;max-width:280px">Gather the crew. Pick a restaurant. No more arguing! 🍽️</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 2: CREATE PARTY
-     ============================================================ -->
-<div class="screen" id="screen-create">
-  <div class="logo" style="font-size:40px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 28px;"></div>
-  <div class="section-title">Create a Party 🎉</div>
+<!-- CREATE -->
+<div class="screen" id="s-create">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:24px"></div>
+  <div class="section-title">Host a Party 🎉</div>
   <div class="section-sub">Enter your name to get started</div>
-  <input type="text" class="input-field" id="host-name" placeholder="Your name..." maxlength="16">
-  <div style="height: 14px;"></div>
-  <button class="btn btn-primary" onclick="createParty()">Generate Party Code</button>
-  <button class="btn btn-secondary" onclick="showScreen('screen-home')" style="margin-top:10px">← Back</button>
+  <input class="input-field" id="host-name" placeholder="Your name..." maxlength="16">
+  <div id="create-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="create-btn" onclick="hostParty()">Generate Party Code</button>
+  <button class="btn btn-secondary" onclick="go('s-home')">← Back</button>
 </div>
 
-<!-- ============================================================
-     SCREEN 3: JOIN PARTY
-     ============================================================ -->
-<div class="screen" id="screen-join">
-  <div class="logo" style="font-size:40px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 28px;"></div>
+<!-- JOIN -->
+<div class="screen" id="s-join">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:24px"></div>
   <div class="section-title">Join a Party 🔗</div>
   <div class="section-sub">Enter the code and your name</div>
-  <input type="text" class="input-field" id="join-code" placeholder="Party code..." maxlength="6" style="letter-spacing:6px; text-transform:uppercase;">
-  <input type="text" class="input-field" id="join-name" placeholder="Your name..." maxlength="16" style="margin-top:10px;">
-  <div id="join-error" class="error-msg" style="display:none;"></div>
-  <div style="height: 14px;"></div>
-  <button class="btn btn-primary" onclick="joinParty()">Join Party 🎉</button>
-  <button class="btn btn-secondary" onclick="showScreen('screen-home')" style="margin-top:10px">← Back</button>
+  <input class="input-field" id="join-code" placeholder="ABCD" maxlength="4" style="letter-spacing:6px;text-transform:uppercase">
+  <input class="input-field" id="join-name" placeholder="Your name..." maxlength="16" style="margin-top:10px">
+  <div id="join-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="join-btn" onclick="joinParty()">Join Party 🎉</button>
+  <button class="btn btn-secondary" onclick="go('s-home')">← Back</button>
 </div>
 
-<!-- ============================================================
-     SCREEN 4: LOBBY (HOST)
-     ============================================================ -->
-<div class="screen" id="screen-lobby-host">
-  <div class="logo" style="font-size:36px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 16px;"></div>
-  <div class="party-code-display" style="width:100%;max-width:360px;">
-    <div class="party-code-label">Party Code</div>
-    <div class="party-code-value" id="display-code">----</div>
-    <div style="font-size:12px; color:var(--muted); margin-top:6px; font-weight:600;">Share this with your crew!</div>
+<!-- LOBBY HOST -->
+<div class="screen" id="s-lobby-host">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="code-box">
+    <div class="code-label">Party Code</div>
+    <div class="code-value" id="h-code">----</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px;font-weight:600">Share this with your crew!</div>
   </div>
-  <div style="height: 20px;"></div>
-  <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-    <div class="player-count-badge">
-      <span>👥</span>
-      <span id="host-player-count">1 / 10 players</span>
-    </div>
-    <div class="tag tag-green" id="min-players-tag">Need 1 more</div>
+  <div style="height:16px"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <div class="pcount-badge">👥 <span id="h-count">1 / 10</span></div>
+    <div class="tag tag-o" id="h-tag">Need 1 more</div>
   </div>
-  <div class="players-grid" id="host-players-list"></div>
-  <div style="height: 24px;"></div>
-  <div id="start-btn-wrap" style="width:100%;max-width:360px;">
-    <button class="btn btn-green" id="start-game-btn" onclick="startGame()" disabled style="opacity:0.45; cursor:not-allowed;">
-      🚀 Start Game!
-    </button>
-    <div class="waiting-text" id="waiting-text">Waiting for players to join...</div>
-  </div>
+  <div class="players-grid" id="h-players"></div>
+  <div style="height:20px"></div>
+  <button class="btn btn-green" id="h-start-btn" onclick="hostStart()" disabled>🚀 Start Game!</button>
+  <div class="waiting-text" id="h-wait">Waiting for players to join...</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 5: LOBBY (PLAYER)
-     ============================================================ -->
-<div class="screen" id="screen-lobby-player">
-  <div class="logo" style="font-size:36px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 16px;"></div>
-  <div class="party-code-display" style="width:100%;max-width:360px;">
-    <div class="party-code-label">You joined</div>
-    <div class="party-code-value" id="player-display-code">----</div>
+<!-- LOBBY PLAYER -->
+<div class="screen" id="s-lobby-player">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="code-box">
+    <div class="code-label">You joined</div>
+    <div class="code-value" id="p-code">----</div>
   </div>
-  <div style="height: 20px;"></div>
-  <div class="section-title" id="player-lobby-title">Waiting for players...</div>
+  <div style="height:16px"></div>
+  <div class="section-title" id="p-lobby-title">In the lobby...</div>
   <div class="dots-loader"><span></span><span></span><span></span></div>
-  <div class="players-grid" id="player-players-list"></div>
+  <div class="players-grid" id="p-players"></div>
   <div class="waiting-text">The host will start when everyone's ready!</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 6: INTRO ANIMATION
-     ============================================================ -->
-<div class="screen" id="screen-intro" style="text-align:center;">
-  <div class="logo-food-icons" id="intro-icons" style="opacity:0; font-size:36px;">🍕 🍔 🌮 🍣 🍜</div>
-  <div class="logo" id="intro-logo" style="opacity:0; font-size:clamp(60px,18vw,100px);">Family Fooder</div>
-  <div class="created-by" style="margin-top:10px;">
-    created by <span class="typewriter" id="typewriter-intro" style="font-size:15px;"></span>
-  </div>
-  <div id="intro-sub" style="opacity:0; margin-top:16px; font-size:15px; color:var(--muted); font-weight:700; letter-spacing:1px;">
-    🎉 Let's find your next meal!
-  </div>
+<!-- INTRO -->
+<div class="screen" id="s-intro" style="text-align:center">
+  <div id="intro-icons" class="logo-icons" style="opacity:0;font-size:36px">🍕 🍔 🌮 🍣 🍜</div>
+  <div class="logo" id="intro-logo" style="opacity:0">Family Fooder</div>
+  <div class="created-by" style="margin-top:10px">created by <span class="typewriter" id="tw-intro" style="font-size:15px"></span></div>
+  <div id="intro-sub" style="opacity:0;margin-top:16px;font-size:15px;color:var(--muted);font-weight:700;letter-spacing:1px">🎉 Let's find your next meal!</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 7: CHOOSE RESTAURANTS
-     ============================================================ -->
-<div class="screen" id="screen-pick-restaurants">
-  <div class="logo" style="font-size:30px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 16px;"></div>
+<!-- PICK -->
+<div class="screen" id="s-pick">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
   <div class="section-title">Pick Your Spots! 🍽️</div>
   <div class="section-sub">Choose 2 restaurants you'd love to eat at</div>
-
   <div class="restaurant-input-wrap">
     <span class="rest-num">1</span>
-    <input type="text" class="input-field" id="rest1" placeholder="Restaurant name..." maxlength="40">
+    <input class="input-field" id="r1" placeholder="Restaurant name..." maxlength="40">
   </div>
   <div class="restaurant-input-wrap">
     <span class="rest-num">2</span>
-    <input type="text" class="input-field" id="rest2" placeholder="Restaurant name..." maxlength="40">
+    <input class="input-field" id="r2" placeholder="Restaurant name..." maxlength="40">
   </div>
-  <div id="rest-error" class="error-msg" style="display:none;"></div>
-  <div style="height:14px;"></div>
-  <button class="btn btn-primary" onclick="submitRestaurants()">Submit My Picks ✅</button>
-
-  <div style="height:16px;"></div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="rest-progress" style="width:0%"></div>
-  </div>
-  <div class="waiting-text" id="rest-waiting-text">Waiting for everyone to submit...</div>
+  <div id="pick-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="pick-btn" onclick="submitRestaurants()">Submit My Picks ✅</button>
+  <div style="height:12px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="pick-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="pick-wait">Waiting for everyone...</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 8: WAITING FOR VOTE
-     ============================================================ -->
-<div class="screen" id="screen-waiting-vote">
-  <div class="logo" style="font-size:30px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 20px;"></div>
-  <div class="section-title">Gathering the options... 🍴</div>
-  <div class="loader"></div>
-  <div class="waiting-text">Hold tight! Tallying everyone's picks...</div>
-</div>
-
-<!-- ============================================================
-     SCREEN 9: VOTE
-     ============================================================ -->
-<div class="screen" id="screen-vote">
-  <div class="logo" style="font-size:28px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 10px;"></div>
-  <div class="round-badge" id="vote-round-label">Round 1 · Voting</div>
+<!-- VOTE -->
+<div class="screen" id="s-vote">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:8px"></div>
+  <div class="round-badge" id="v-round">Round 1 · Voting</div>
   <div class="section-title">Which looks most desirable? 👀</div>
-  <div class="section-sub">These are places others picked — not yours!</div>
-  <div id="vote-options-container" style="width:100%;max-width:360px;"></div>
-  <div id="vote-error" class="error-msg" style="display:none;"></div>
-  <div style="height:10px;"></div>
-  <button class="btn btn-primary" id="vote-submit-btn" onclick="submitVote()" style="opacity:0.4;cursor:not-allowed;" disabled>
-    Cast My Vote 🗳️
-  </button>
-  <div style="height:10px;"></div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="vote-progress" style="width:0%"></div>
-  </div>
-  <div class="waiting-text" id="vote-waiting-text">Waiting for everyone to vote...</div>
-  <div class="eliminated-list" id="eliminated-list"></div>
+  <div class="section-sub">Places others picked — not yours!</div>
+  <div id="v-options" style="width:100%;max-width:360px"></div>
+  <div id="v-err" class="error-msg" style="display:none"></div>
+  <div style="height:8px"></div>
+  <button class="btn btn-primary" id="v-btn" onclick="submitVote()" disabled>Cast My Vote 🗳️</button>
+  <div style="height:8px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="v-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="v-wait">Waiting for everyone to vote...</div>
+  <div class="elim-list" id="v-elim"></div>
 </div>
 
-<!-- ============================================================
-     SCREEN 10: RESULTS
-     ============================================================ -->
-<div class="screen" id="screen-results">
-  <div class="logo" style="font-size:28px; margin-bottom:4px;">Family Fooder</div>
-  <div style="height: 16px;"></div>
+<!-- RESULTS -->
+<div class="screen" id="s-results">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
   <div class="winner-card">
-    <div class="winner-emoji" id="winner-emoji">🏆</div>
-    <div class="winner-name" id="winner-name">Winner!</div>
-    <div class="winner-sub" id="winner-sub">The family has fooded!</div>
+    <span class="winner-emoji" id="res-emoji">🏆</span>
+    <div class="winner-name" id="res-name">Winner!</div>
+    <div class="winner-sub">The family has fooded!</div>
   </div>
-  <div style="height: 20px;"></div>
-  <div class="section-title" style="font-size:18px;">Final Votes</div>
-  <div id="final-results-bars" style="width:100%;max-width:400px;margin-top:12px;"></div>
-  <div style="height:24px;"></div>
-  <div class="section-title" style="font-size:18px; margin-bottom:12px;">What now? 🤔</div>
-  <button class="btn btn-green" onclick="playAgainVote('yes')">🔁 Play Again!</button>
-  <button class="btn btn-red" onclick="playAgainVote('no')" style="margin-top:10px;">✅ We've Fooded!</button>
-  <div style="height:10px;"></div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="again-progress" style="width:0%"></div>
-  </div>
-  <div class="waiting-text" id="again-waiting-text">Waiting for the group to decide...</div>
+  <div style="height:16px"></div>
+  <div class="section-title" style="font-size:18px">Final Votes</div>
+  <div id="res-bars" style="width:100%;max-width:400px;margin-top:12px"></div>
+  <div style="height:20px"></div>
+  <div class="section-title" style="font-size:18px;margin-bottom:12px">What now? 🤔</div>
+  <button class="btn btn-green" id="again-yes" onclick="voteAgain('yes')">🔁 Play Again!</button>
+  <button class="btn btn-red" id="again-no" onclick="voteAgain('no')" style="margin-top:10px">✅ We've Fooded!</button>
+  <div style="height:8px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="again-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="again-wait">Waiting for the group to decide...</div>
 </div>
 
-<!-- ============================================================
-     SCREEN 11: GOODBYE
-     ============================================================ -->
-<div class="screen" id="screen-goodbye" style="text-align:center;">
-  <div class="logo-food-icons" style="font-size:40px;">🍽️ 🥂 🍾</div>
-  <div class="logo" style="margin-bottom:8px;">Family Fooder</div>
-  <div class="section-title" style="font-size:24px; margin-top:16px;">The Family Has Fooded! 🎊</div>
-  <div style="font-size:15px; color:var(--muted); font-weight:600; margin-top:8px; max-width:300px; text-align:center;">
-    Hope you enjoy the meal. Come back next time you can't decide! 🍴
-  </div>
-  <div style="height:28px;"></div>
+<!-- GOODBYE -->
+<div class="screen" id="s-bye" style="text-align:center">
+  <div class="logo-icons" style="font-size:40px">🍽️ 🥂 🍾</div>
+  <div class="logo" style="margin-bottom:8px">Family Fooder</div>
+  <div class="section-title" style="font-size:24px;margin-top:16px">The Family Has Fooded! 🎊</div>
+  <div style="font-size:15px;color:var(--muted);font-weight:600;margin-top:8px;max-width:300px;text-align:center">Hope you enjoy the meal. Come back next time! 🍴</div>
+  <div style="height:28px"></div>
   <button class="btn btn-primary" onclick="location.reload()">Back to Home 🏠</button>
 </div>
 
 <script>
-// ================================================================
-// STATE MANAGEMENT
-// Using a shared in-memory "server" via BroadcastChannel
-// (works across tabs on same origin, simulating a real-time party)
-// ================================================================
+const EMOJIS=['🍕','🍔','🌮','🍣','🍜','🍦','🥩','🍝','🍱','🥗','🍛','🥪','🍩','🌯','🥘','🦞','🍗','🍟','🥐','🥞'];
+const COLORS=['#FF6B35','#EE4266','#06D6A0','#7B2D8B','#FFD23F','#3A86FF','#FF006E','#8338EC','#FB5607','#2EC4B6'];
 
-const FOOD_EMOJIS = ['🍕','🍔','🌮','🍣','🍜','🍦','🥩','🍝','🍱','🥗','🍛','🥪','🍩','🌯','🥘','🦞','🍗','🍟','🥐','🥞'];
-const COLORS = ['#FF6B35','#EE4266','#06D6A0','#7B2D8B','#FFD23F','#3A86FF','#FF006E','#8338EC','#FB5607','#2EC4B6'];
+// ── identity ──
+let myId = Math.random().toString(36).slice(2,9);
+let myName='', myCode='', isHost=false;
 
-// ---- Party state (shared via BroadcastChannel or localStorage polling) ----
-let myName = '';
-let myCode = '';
-let isHost = false;
-let myId = Math.random().toString(36).slice(2, 10);
+// ── peer refs ──
+let peer=null, hostConn=null, playerConns=[];
 
-// We'll use localStorage as a "server" for cross-tab communication
-const STORAGE_KEY = 'family_fooder_parties';
+// ── game state (authoritative on host) ──
+let GS=null;
 
-function getParties() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
-}
-function saveParties(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
-function getParty(code) { return getParties()[code] || null; }
-function updateParty(code, fn) {
-  const parties = getParties();
-  if (!parties[code]) return false;
-  fn(parties[code]);
-  parties[code].updatedAt = Date.now();
-  saveParties(parties);
-  return true;
-}
+// ── submission flags ──
+let sub={rests:false, vote:false, again:false};
+let myVote=null;
+let lastPhase='', lastRound=0;
 
-function createPartyData(code, hostName, hostId) {
-  return {
-    code,
-    hostId,
-phase: 'lobby', // lobby | picking | voting | results | done
-    players: [{ id: hostId, name: hostName, color: COLORS[0] }],
-restaurants: {}, // { playerId: [rest1, rest2] }
-allRestaurants: [], // deduplicated list of all restaurants
-eliminated: [], // eliminated restaurants
-currentOptions: [], // restaurants in current vote
-votes: {}, // { playerId: restaurantName }
-    roundNum: 1,
-    winner: null,
-    playAgainVotes: {},
-    updatedAt: Date.now(),
-    createdAt: Date.now()
-  };
+// ── utils ──
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function setE(id,txt){const e=document.getElementById(id);if(e){e.textContent=txt;e.style.display='block'}}
+function hideE(id){const e=document.getElementById(id);if(e)e.style.display='none'}
+function setBtnOn(id,on){const b=document.getElementById(id);if(!b)return;b.disabled=!on;b.style.opacity=on?'1':'.4'}
+function setText(id,txt){const e=document.getElementById(id);if(e)e.textContent=txt}
+
+function typewriter(elId,text,speed,done){
+  const el=document.getElementById(elId);if(!el)return;
+  el.textContent='';let i=0;
+  const t=setInterval(()=>{if(i<text.length)el.textContent+=text[i++];else{clearInterval(t);done&&done()}},speed||70);
 }
 
-// ---- Polling ----
-let pollInterval = null;
-let lastUpdatedAt = 0;
-
-function startPolling(code, onUpdate) {
-  if (pollInterval) clearInterval(pollInterval);
-  lastUpdatedAt = 0;
-  pollInterval = setInterval(() => {
-    const party = getParty(code);
-    if (!party) return;
-    if (party.updatedAt !== lastUpdatedAt) {
-      lastUpdatedAt = party.updatedAt;
-      onUpdate(party);
-    }
-  }, 400);
+function genCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
 }
 
-function stopPolling() {
-  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+function confetti(){
+  const cols=['#FF6B35','#FFD23F','#EE4266','#06D6A0','#7B2D8B','#3A86FF'];
+  for(let i=0;i<60;i++)setTimeout(()=>{
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${Math.random()*8+6}px;height:${Math.random()*8+6}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*2+2}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*60);
 }
 
-// ================================================================
-// SCREEN NAVIGATION
-// ================================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+// ── messaging ──
+function broadcast(msg){playerConns.forEach(c=>{try{c.send(msg)}catch(e){}})}
+function sendToHost(msg){
+  if(isHost){onHostMsg(msg,null)}
+  else if(hostConn&&hostConn.open){try{hostConn.send(msg)}catch(e){}}
+}
+function pushState(){
+  broadcast({type:'state',s:GS});
+  onState(GS); // host sees its own state
 }
 
-// ================================================================
-// TYPEWRITER EFFECT
-// ================================================================
-function typewriter(el, text, speed = 70, done) {
-  el.textContent = '';
-  let i = 0;
-  const t = setInterval(() => {
-    if (i < text.length) { el.textContent += text[i++]; }
-    else { clearInterval(t); if (done) done(); }
-  }, speed);
+// ── new game state ──
+function newGS(code,hostId,hostName){
+  return{code,hostId,phase:'lobby',
+    players:[{id:hostId,name:hostName,color:COLORS[0]}],
+    restaurants:{},allRestaurants:[],eliminated:[],
+    currentOptions:[],votes:{},roundNum:1,
+    winner:null,finalTally:null,playAgainVotes:{}};
 }
 
-// Start home typewriter
-window.addEventListener('DOMContentLoaded', () => {
-  const tw = document.getElementById('typewriter-home');
-  if (tw) typewriter(tw, 'Richie Robles');
-});
+// ══════════════════════════════════════════
+// HOST
+// ══════════════════════════════════════════
+function hostParty(){
+  const name=document.getElementById('host-name').value.trim();
+  if(!name){setE('create-err','Enter your name!');return}
+  hideE('create-err');
+  setBtnOn('create-btn',false);
+  setText('create-btn','Connecting...');
 
-// ================================================================
-// CREATE PARTY
-// ================================================================
-function generateCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length: 4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-}
+  myName=name;myId=Math.random().toString(36).slice(2,9);isHost=true;myCode=genCode();
 
-function createParty() {
-  const name = document.getElementById('host-name').value.trim();
-  if (!name) { alert('Please enter your name!'); return; }
+  peer=new Peer('ff-'+myCode,{debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
 
-  myName = name;
-  isHost = true;
-  let code;
-  do { code = generateCode(); } while (getParty(code));
-  myCode = code;
-
-  const parties = getParties();
-  parties[code] = createPartyData(code, name, myId);
-  saveParties(parties);
-
-  showScreen('screen-lobby-host');
-  document.getElementById('display-code').textContent = code;
-  renderHostLobby(getParty(code));
-  startPolling(code, (party) => { renderHostLobby(party); handlePhaseChange(party); });
-}
-
-function renderHostLobby(party) {
-  const list = document.getElementById('host-players-list');
-  list.innerHTML = party.players.map((p,i) => `
-    <div class="player-chip">
-      <div class="player-avatar" style="background:${p.color}">${p.name.charAt(0).toUpperCase()}</div>
-      ${escHtml(p.name)}${p.id === myId ? ' <span class="host-badge">HOST</span>' : ''}
-    </div>`).join('');
-
-  const count = party.players.length;
-  document.getElementById('host-player-count').textContent = `${count} / 10 players`;
-
-  const tag = document.getElementById('min-players-tag');
-  if (count >= 2) {
-    tag.textContent = 'Ready!';
-    tag.className = 'tag tag-green';
-  } else {
-    tag.textContent = `Need ${2 - count} more`;
-    tag.className = 'tag tag-orange';
-  }
-
-  const btn = document.getElementById('start-game-btn');
-  const wt = document.getElementById('waiting-text');
-  if (count >= 2) {
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
-    wt.textContent = `${count} players ready — start when you're set!`;
-  } else {
-    btn.disabled = true;
-    btn.style.opacity = '0.45';
-    btn.style.cursor = 'not-allowed';
-    wt.textContent = 'Waiting for at least 1 more player...';
-  }
-}
-
-// ================================================================
-// JOIN PARTY
-// ================================================================
-function joinParty() {
-  const code = document.getElementById('join-code').value.trim().toUpperCase();
-  const name = document.getElementById('join-name').value.trim();
-  const errEl = document.getElementById('join-error');
-
-  if (!code || code.length !== 4) { showErr(errEl, 'Enter a valid 4-letter code!'); return; }
-  if (!name) { showErr(errEl, 'Enter your name!'); return; }
-
-  const party = getParty(code);
-  if (!party) { showErr(errEl, "That party doesn't exist!"); return; }
-  if (party.phase !== 'lobby') { showErr(errEl, 'That game already started!'); return; }
-  if (party.players.length >= 10) { showErr(errEl, 'That party is full (10 max)!'); return; }
-  if (party.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-    showErr(errEl, 'That name is taken in this party!'); return;
-  }
-
-  myName = name;
-  myCode = code;
-  isHost = false;
-
-  updateParty(code, p => {
-    p.players.push({ id: myId, name, color: COLORS[p.players.length % COLORS.length] });
+  peer.on('open',()=>{
+    GS=newGS(myCode,myId,name);
+    setText('h-code',myCode);
+    go('s-lobby-host');
+    renderLobby();
   });
 
-  showScreen('screen-lobby-player');
-  document.getElementById('player-display-code').textContent = code;
-  renderPlayerLobby(getParty(code));
-  startPolling(code, (party) => { renderPlayerLobby(party); handlePhaseChange(party); });
-}
-
-function renderPlayerLobby(party) {
-  const list = document.getElementById('player-players-list');
-  list.innerHTML = party.players.map((p,i) => `
-    <div class="player-chip">
-      <div class="player-avatar" style="background:${p.color}">${p.name.charAt(0).toUpperCase()}</div>
-      ${escHtml(p.name)}${p.id === party.hostId ? ' <span class="host-badge">HOST</span>' : ''}
-    </div>`).join('');
-  document.getElementById('player-lobby-title').textContent =
-    `${party.players.length} player${party.players.length !== 1 ? 's' : ''} in the lobby!`;
-}
-
-// ================================================================
-// PHASE CHANGE HANDLER
-// ================================================================
-let currentPhase = 'lobby';
-function handlePhaseChange(party) {
-  if (party.phase === currentPhase) return;
-  currentPhase = party.phase;
-
-  if (party.phase === 'intro') {
-    stopPolling();
-    playIntro(party);
-  } else if (party.phase === 'picking') {
-    showPickRestaurants(party);
-    startPolling(myCode, p => { handlePhaseChange(p); updateRestProgress(p); });
-  } else if (party.phase === 'voting') {
-    showVoteScreen(party);
-    startPolling(myCode, p => { handlePhaseChange(p); updateVoteProgress(p); });
-  } else if (party.phase === 'results') {
-    showResults(party);
-    startPolling(myCode, p => { handlePhaseChange(p); updateAgainProgress(p); });
-  } else if (party.phase === 'done') {
-    showScreen('screen-goodbye');
-  } else if (party.phase === 'lobby_reset') {
-    resetToLobby(party);
-  }
-}
-
-// ================================================================
-// START GAME (host only)
-// ================================================================
-function startGame() {
-  updateParty(myCode, p => { p.phase = 'intro'; });
-}
-
-// ================================================================
-// INTRO ANIMATION
-// ================================================================
-function playIntro(party) {
-  showScreen('screen-intro');
-  const icons = document.getElementById('intro-icons');
-  const logo = document.getElementById('intro-logo');
-  const sub = document.getElementById('intro-sub');
-  const tw = document.getElementById('typewriter-intro');
-
-  setTimeout(() => { icons.style.opacity = '1'; icons.style.animation = 'popIn 0.6s ease, bounce 2s 0.6s ease-in-out infinite'; }, 300);
-  setTimeout(() => { logo.style.opacity = '1'; logo.style.animation = 'popIn 0.7s ease'; }, 800);
-  setTimeout(() => { typewriter(tw, 'Richie Robles', 80, () => {
-    setTimeout(() => {
-      sub.style.opacity = '1';
-      sub.style.animation = 'slideUp 0.5s ease';
-    }, 300);
-  }); }, 1600);
-
-  setTimeout(() => {
-    updateParty(myCode, p => { p.phase = 'picking'; });
-    showPickRestaurants(getParty(myCode));
-    startPolling(myCode, p => { handlePhaseChange(p); updateRestProgress(p); });
-  }, 5000);
-}
-
-// ================================================================
-// PICK RESTAURANTS
-// ================================================================
-let myRestaurantsSubmitted = false;
-
-function showPickRestaurants(party) {
-  myRestaurantsSubmitted = false;
-  document.getElementById('rest1').value = '';
-  document.getElementById('rest2').value = '';
-  document.getElementById('rest-error').style.display = 'none';
-  showScreen('screen-pick-restaurants');
-  updateRestProgress(party || getParty(myCode));
-}
-
-function updateRestProgress(party) {
-  const submitted = Object.keys(party.restaurants).length;
-  const total = party.players.length;
-  const pct = Math.round((submitted / total) * 100);
-  document.getElementById('rest-progress').style.width = pct + '%';
-  document.getElementById('rest-waiting-text').textContent =
-    `${submitted} / ${total} players submitted`;
-
-  if (submitted === total && party.phase === 'picking') {
-    if (isHost) { computeVotingRound(party); }
-  }
-}
-
-function submitRestaurants() {
-  if (myRestaurantsSubmitted) return;
-  const r1 = document.getElementById('rest1').value.trim();
-  const r2 = document.getElementById('rest2').value.trim();
-  const errEl = document.getElementById('rest-error');
-
-  if (!r1 || !r2) { showErr(errEl, 'Please enter both restaurant names!'); return; }
-  if (r1.toLowerCase() === r2.toLowerCase()) { showErr(errEl, 'Pick 2 different restaurants!'); return; }
-
-  const party = getParty(myCode);
-  const allPicked = Object.values(party.restaurants).flat().map(s => s.toLowerCase());
-  if (allPicked.includes(r1.toLowerCase())) { showErr(errEl, `"${r1}" was already picked by someone else! Choose a different place.`); return; }
-  if (allPicked.includes(r2.toLowerCase())) { showErr(errEl, `"${r2}" was already picked by someone else! Choose a different place.`); return; }
-
-  myRestaurantsSubmitted = true;
-  errEl.style.display = 'none';
-  document.getElementById('rest1').disabled = true;
-  document.getElementById('rest2').disabled = true;
-  document.querySelector('#screen-pick-restaurants .btn-primary').disabled = true;
-  document.querySelector('#screen-pick-restaurants .btn-primary').style.opacity = '0.5';
-
-  updateParty(myCode, p => {
-    p.restaurants[myId] = [r1, r2];
-    p.allRestaurants = [...new Set(
-      Object.values(p.restaurants).flat()
-    )];
+  peer.on('error',err=>{
+    if(err.type==='unavailable-id'){peer.destroy();peer=null;setBtnOn('create-btn',true);setText('create-btn','Generate Party Code');hostParty();}
+    else{setE('create-err','Error: '+err.message);setBtnOn('create-btn',true);setText('create-btn','Generate Party Code');}
   });
 
-  document.getElementById('rest-waiting-text').textContent = '✅ Submitted! Waiting for others...';
-  const updated = getParty(myCode);
-  updateRestProgress(updated);
-}
-
-// ================================================================
-// COMPUTE VOTE ROUND (host only)
-// ================================================================
-function computeVotingRound(party) {
-  // Build active restaurants (not eliminated)
-  const active = (party.currentOptions.length > 0 ? party.currentOptions : party.allRestaurants)
-    .filter(r => !party.eliminated.includes(r));
-
-  updateParty(myCode, p => {
-    p.currentOptions = active;
-    p.votes = {};
-    p.phase = 'voting';
-  });
-}
-
-// ================================================================
-// VOTING SCREEN
-// ================================================================
-let myVote = null;
-let myVoteSubmitted = false;
-
-function showVoteScreen(party) {
-  myVote = null;
-  myVoteSubmitted = false;
-  const container = document.getElementById('vote-options-container');
-  const errEl = document.getElementById('vote-error');
-  errEl.style.display = 'none';
-
-  // Show restaurants the player did NOT submit
-  const myRests = (party.restaurants[myId] || []).map(s => s.toLowerCase());
-  const options = party.currentOptions.filter(r => !myRests.includes(r.toLowerCase()));
-
-  // If all their picks are eliminated, show all active ones
-  const displayOptions = options.length > 0 ? options : party.currentOptions;
-
-  container.innerHTML = displayOptions.map((r, i) => `
-    <button class="vote-option" onclick="selectVote(this, '${escAttr(r)}')" data-rest="${escAttr(r)}">
-      <div class="vote-emoji">${FOOD_EMOJIS[i % FOOD_EMOJIS.length]}</div>
-      <div class="vote-row">
-        <div class="vote-name">${escHtml(r)}</div>
-      </div>
-    </button>`).join('');
-
-  document.getElementById('vote-round-label').textContent = `Round ${party.roundNum} · Voting`;
-
-  const elim = party.eliminated;
-  const elimEl = document.getElementById('eliminated-list');
-  if (elim.length > 0) {
-    elimEl.innerHTML = '❌ Eliminated: ' + elim.map(r => `<span class="eliminated-item">${escHtml(r)}</span>`).join('');
-  } else {
-    elimEl.innerHTML = '';
-  }
-
-  document.getElementById('vote-submit-btn').disabled = true;
-  document.getElementById('vote-submit-btn').style.opacity = '0.4';
-  document.getElementById('vote-submit-btn').style.cursor = 'not-allowed';
-  showScreen('screen-vote');
-  updateVoteProgress(party);
-}
-
-function selectVote(el, restName) {
-  if (myVoteSubmitted) return;
-  document.querySelectorAll('.vote-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  myVote = restName;
-  const btn = document.getElementById('vote-submit-btn');
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.style.cursor = 'pointer';
-}
-
-function submitVote() {
-  if (!myVote || myVoteSubmitted) return;
-  myVoteSubmitted = true;
-  document.getElementById('vote-submit-btn').disabled = true;
-  document.getElementById('vote-submit-btn').style.opacity = '0.5';
-  document.querySelectorAll('.vote-option').forEach(o => o.classList.add('disabled-opt'));
-
-  updateParty(myCode, p => { p.votes[myId] = myVote; });
-  document.getElementById('vote-waiting-text').textContent = '✅ Voted! Waiting for others...';
-
-  const updated = getParty(myCode);
-  updateVoteProgress(updated);
-}
-
-function updateVoteProgress(party) {
-  const submitted = Object.keys(party.votes).length;
-  const total = party.players.length;
-  const pct = Math.round((submitted / total) * 100);
-  document.getElementById('vote-progress').style.width = pct + '%';
-  if (!myVoteSubmitted) {
-    document.getElementById('vote-waiting-text').textContent = `${submitted} / ${total} voted`;
-  }
-
-  if (submitted === total && party.phase === 'voting') {
-    if (isHost) { tallyVotes(party); }
-  }
-}
-
-// ================================================================
-// TALLY VOTES (host only)
-// ================================================================
-function tallyVotes(party) {
-  const votes = party.votes;
-  const tally = {};
-  Object.values(votes).forEach(v => { tally[v] = (tally[v] || 0) + 1; });
-
-  const total = Object.values(tally).reduce((a,b) => a+b, 0);
-  const sorted = Object.entries(tally).sort((a,b) => b[1]-a[1]);
-  const topCount = sorted[0][1];
-  const topOptions = sorted.filter(([,c]) => c === topCount);
-
-  // Check for majority (> 50%)
-  if (topCount > total / 2 || sorted.length === 1) {
-    // We have a winner
-    updateParty(myCode, p => {
-      p.winner = sorted[0][0];
-      p.finalTally = tally;
-      p.phase = 'results';
+  peer.on('connection',conn=>{
+    conn.on('open',()=>{
+      playerConns.push(conn);
+      conn.on('data',msg=>onHostMsg(msg,conn));
+      conn.on('close',()=>onDisconnect(conn));
+      conn.on('error',()=>onDisconnect(conn));
+      // Send current state to the newly connected peer
+      conn.send({type:'state',s:GS});
     });
-  } else {
-    // Eliminate lowest vote-getters
-    const minCount = sorted[sorted.length - 1][1];
-    const toElim = sorted.filter(([,c]) => c === minCount).map(([r]) => r);
-    const newActive = party.currentOptions.filter(r => !toElim.includes(r));
-
-    if (newActive.length <= 1) {
-      // Force pick the top
-      updateParty(myCode, p => {
-        p.winner = sorted[0][0];
-        p.finalTally = tally;
-        p.phase = 'results';
-      });
-    } else {
-      updateParty(myCode, p => {
-        p.eliminated = [...p.eliminated, ...toElim];
-        p.currentOptions = newActive;
-        p.votes = {};
-        p.roundNum = (p.roundNum || 1) + 1;
-        p.phase = 'voting';
-      });
-    }
-  }
-}
-
-// ================================================================
-// RESULTS SCREEN
-// ================================================================
-function showResults(party) {
-  spawnConfetti();
-  document.getElementById('winner-name').textContent = party.winner;
-  document.getElementById('winner-emoji').textContent = FOOD_EMOJIS[Math.floor(Math.random() * FOOD_EMOJIS.length)];
-
-  // Results bars
-  const tally = party.finalTally || {};
-  const total = Object.values(tally).reduce((a,b) => a+b, 0) || 1;
-  const sorted = Object.entries(tally).sort((a,b) => b[1]-a[1]);
-  const bars = document.getElementById('final-results-bars');
-  bars.innerHTML = sorted.map(([r, c]) => {
-    const pct = Math.round((c / total) * 100);
-    const isWinner = r === party.winner;
-    return `<div class="result-bar-wrap">
-      <div class="result-bar-label">
-        <span>${isWinner ? '🏆 ' : ''}${escHtml(r)}</span>
-        <span>${c} vote${c !== 1 ? 's' : ''}</span>
-      </div>
-      <div class="result-bar-bg">
-        <div class="result-bar-fill ${isWinner ? 'winner' : ''}" style="--w:${pct}%"></div>
-      </div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('again-waiting-text').textContent = 'Waiting for everyone to decide...';
-  document.getElementById('again-progress').style.width = '0%';
-  showScreen('screen-results');
-}
-
-function updateAgainProgress(party) {
-  const voted = Object.keys(party.playAgainVotes || {}).length;
-  const total = party.players.length;
-  const pct = Math.round((voted / total) * 100);
-  document.getElementById('again-progress').style.width = pct + '%';
-  document.getElementById('again-waiting-text').textContent = `${voted} / ${total} decided`;
-
-  if (voted === total && isHost) {
-    const yesVotes = Object.values(party.playAgainVotes).filter(v => v === 'yes').length;
-    if (yesVotes > total / 2) {
-      // Play again
-      updateParty(myCode, p => {
-        p.phase = 'lobby_reset';
-        p.restaurants = {};
-        p.allRestaurants = [];
-        p.eliminated = [];
-        p.currentOptions = [];
-        p.votes = {};
-        p.roundNum = 1;
-        p.winner = null;
-        p.finalTally = null;
-        p.playAgainVotes = {};
-      });
-    } else {
-      updateParty(myCode, p => { p.phase = 'done'; });
-    }
-  }
-}
-
-let playAgainSubmitted = false;
-function playAgainVote(val) {
-  if (playAgainSubmitted) return;
-  playAgainSubmitted = true;
-  updateParty(myCode, p => { p.playAgainVotes[myId] = val; });
-  document.querySelector('#screen-results .btn-green').disabled = true;
-  document.querySelector('#screen-results .btn-red').disabled = true;
-  document.querySelector('#screen-results .btn-green').style.opacity = '0.5';
-  document.querySelector('#screen-results .btn-red').style.opacity = '0.5';
-  document.getElementById('again-waiting-text').textContent = '✅ Voted! Waiting for others...';
-  updateAgainProgress(getParty(myCode));
-}
-
-function resetToLobby(party) {
-  playAgainSubmitted = false;
-  myVote = null;
-  myVoteSubmitted = false;
-  myRestaurantsSubmitted = false;
-  currentPhase = 'lobby_reset';
-
-  if (isHost) {
-    showScreen('screen-lobby-host');
-    renderHostLobby(party);
-    startPolling(myCode, p => { renderHostLobby(p); handlePhaseChange(p); });
-  } else {
-    showScreen('screen-lobby-player');
-    renderPlayerLobby(party);
-    startPolling(myCode, p => { renderPlayerLobby(p); handlePhaseChange(p); });
-  }
-
-  // Host must manually start again
-  if (isHost) {
-    updateParty(myCode, p => { p.phase = 'lobby'; });
-  }
-}
-
-// ================================================================
-// CONFETTI
-// ================================================================
-function spawnConfetti() {
-  const colors = ['#FF6B35','#FFD23F','#EE4266','#06D6A0','#7B2D8B','#3A86FF'];
-  for (let i = 0; i < 60; i++) {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random() * 100 + 'vw';
-      el.style.top = '-10px';
-      el.style.background = colors[Math.floor(Math.random()*colors.length)];
-      el.style.width = (Math.random() * 8 + 6) + 'px';
-      el.style.height = (Math.random() * 8 + 6) + 'px';
-      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-      el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-      el.style.animationDelay = '0s';
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
-    }, i * 60);
-  }
-}
-
-// ================================================================
-// UTILS
-// ================================================================
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escAttr(s) {
-  return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-}
-function showErr(el, msg) {
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-// ================================================================
-// CLEANUP OLD PARTIES (older than 2 hours)
-// ================================================================
-(function cleanup() {
-  const parties = getParties();
-  const now = Date.now();
-  Object.keys(parties).forEach(k => {
-    if (now - parties[k].createdAt > 2 * 60 * 60 * 1000) delete parties[k];
   });
-  saveParties(parties);
-})();
+}
+
+function onDisconnect(conn){
+  playerConns=playerConns.filter(c=>c!==conn);
+  if(!GS)return;
+  if(conn._pid){GS.players=GS.players.filter(p=>p.id!==conn._pid);pushState();}
+}
+
+function onHostMsg(msg,conn){
+  if(!GS)return;
+
+  if(msg.type==='join'){
+    if(GS.phase!=='lobby'){conn&&conn.send({type:'err',msg:'Game already started!'});return}
+    if(GS.players.length>=10){conn&&conn.send({type:'err',msg:'Party is full!'});return}
+    const nameTaken=GS.players.find(p=>p.name.toLowerCase()===msg.name.toLowerCase());
+    if(nameTaken){conn&&conn.send({type:'err',msg:'That name is taken! Pick another.'});return}
+    if(conn)conn._pid=msg.id;
+    GS.players.push({id:msg.id,name:msg.name,color:COLORS[GS.players.length%COLORS.length]});
+    pushState();return;
+  }
+
+  if(msg.type==='submit_rests'){
+    if(GS.phase!=='picking')return;
+    const taken=Object.values(GS.restaurants).flat().map(s=>s.toLowerCase());
+    const r1l=msg.r1.toLowerCase(),r2l=msg.r2.toLowerCase();
+    const dupe=taken.includes(r1l)?msg.r1:taken.includes(r2l)?msg.r2:null;
+    if(dupe){
+      const errMsg={type:'pick_err',msg:`"${dupe}" was already picked! Choose a different place.`};
+      if(msg.id===myId)onState({...GS,_pickErr:errMsg.msg});
+      else{const c=playerConns.find(c=>c._pid===msg.id);if(c)c.send(errMsg);}
+      return;
+    }
+    GS.restaurants[msg.id]=[msg.r1,msg.r2];
+    GS.allRestaurants=[...new Set(Object.values(GS.restaurants).flat())];
+    pushState();
+    if(Object.keys(GS.restaurants).length===GS.players.length){
+      GS.currentOptions=[...GS.allRestaurants];GS.votes={};GS.phase='voting';pushState();
+    }
+    return;
+  }
+
+  if(msg.type==='vote'){
+    if(GS.phase!=='voting')return;
+    GS.votes[msg.id]=msg.restaurant;pushState();
+    if(Object.keys(GS.votes).length===GS.players.length)tallyVotes();
+    return;
+  }
+
+  if(msg.type==='play_again'){
+    GS.playAgainVotes[msg.id]=msg.val;pushState();
+    if(Object.keys(GS.playAgainVotes).length===GS.players.length){
+      const yes=Object.values(GS.playAgainVotes).filter(v=>v==='yes').length;
+      if(yes>GS.players.length/2)resetGame();else{GS.phase='done';pushState();}
+    }
+    return;
+  }
+}
+
+function tallyVotes(){
+  const tally={};
+  Object.values(GS.votes).forEach(v=>{tally[v]=(tally[v]||0)+1});
+  const total=Object.values(tally).reduce((a,b)=>a+b,0);
+  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  const topCount=sorted[0][1],minCount=sorted[sorted.length-1][1];
+  if(topCount>total/2||sorted.length===1){
+    GS.winner=sorted[0][0];GS.finalTally=tally;GS.phase='results';pushState();
+  } else {
+    const toElim=sorted.filter(([,c])=>c===minCount).map(([r])=>r);
+    const newActive=GS.currentOptions.filter(r=>!toElim.includes(r));
+    if(newActive.length<=1){GS.winner=sorted[0][0];GS.finalTally=tally;GS.phase='results';}
+    else{GS.eliminated=[...GS.eliminated,...toElim];GS.currentOptions=newActive;GS.votes={};GS.roundNum=(GS.roundNum||1)+1;}
+    pushState();
+  }
+}
+
+function resetGame(){
+  GS={...GS,phase:'lobby',restaurants:{},allRestaurants:[],eliminated:[],currentOptions:[],votes:{},roundNum:1,winner:null,finalTally:null,playAgainVotes:{}};
+  sub={rests:false,vote:false,again:false};myVote=null;
+  pushState();
+}
+
+function hostStart(){
+  if(!GS||GS.players.length<2)return;
+  GS.phase='intro';pushState();
+}
+
+// ══════════════════════════════════════════
+// PLAYER
+// ══════════════════════════════════════════
+function joinParty(){
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  const name=document.getElementById('join-name').value.trim();
+  if(!code||code.length!==4){setE('join-err','Enter a valid 4-letter code!');return}
+  if(!name){setE('join-err','Enter your name!');return}
+  hideE('join-err');
+  setBtnOn('join-btn',false);setText('join-btn','Connecting...');
+
+  myName=name;myCode=code;isHost=false;myId=Math.random().toString(36).slice(2,9);
+
+  peer=new Peer(undefined,{debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+
+  let joined=false;
+
+  peer.on('open',()=>{
+    const conn=peer.connect('ff-'+code,{reliable:true});
+    hostConn=conn;
+    conn.on('open',()=>{
+      joined=true;
+      conn.send({type:'join',id:myId,name});
+      setText('p-code',code);
+      go('s-lobby-player');
+      setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+    });
+    conn.on('data',msg=>onPlayerMsg(msg));
+    conn.on('close',()=>{if(joined)alert('Lost connection to host. Refresh to rejoin.');});
+    conn.on('error',()=>{if(joined)alert('Lost connection to host. Refresh to rejoin.');});
+    setTimeout(()=>{
+      if(!joined){
+        setE('join-err',"Can't find that party. Is the code correct?");
+        setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+        go('s-join');
+        try{peer.destroy()}catch(e){}
+      }
+    },9000);
+  });
+
+  peer.on('error',err=>{
+    setE('join-err','Connection error: '+err.message);
+    setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+  });
+}
+
+function onPlayerMsg(msg){
+  if(msg.type==='state'){onState(msg.s);return}
+  if(msg.type==='err'){alert(msg.msg);return}
+  if(msg.type==='pick_err'){
+    setE('pick-err',msg.msg);sub.rests=false;
+    setBtnOn('pick-btn',true);
+    document.getElementById('r1').disabled=false;
+    document.getElementById('r2').disabled=false;
+    return;
+  }
+}
+
+// ══════════════════════════════════════════
+// STATE RENDERER — runs on ALL devices
+// ══════════════════════════════════════════
+function onState(s){
+  if(!s)return;
+  GS=s;
+  const phase=s.phase,round=s.roundNum||1;
+  const pc=phase!==lastPhase,rc=round!==lastRound;
+  lastRound=round;
+
+  if(phase==='lobby'){
+    lastPhase=phase;renderLobby();
+  } else if(phase==='intro'){
+    if(pc){lastPhase=phase;playIntro();}
+  } else if(phase==='picking'){
+    if(pc){lastPhase=phase;sub={rests:false,vote:false,again:false};myVote=null;renderPick(s);}
+    else updatePickProg(s);
+    // host-side pick error
+    if(s._pickErr&&isHost){setE('pick-err',s._pickErr);sub.rests=false;setBtnOn('pick-btn',true);document.getElementById('r1').disabled=false;document.getElementById('r2').disabled=false;}
+  } else if(phase==='voting'){
+    if(pc||rc){lastPhase=phase;sub.vote=false;myVote=null;renderVote(s);}
+    else updateVoteProg(s);
+  } else if(phase==='results'){
+    if(pc){lastPhase=phase;sub.again=false;renderResults(s);}
+    else updateAgainProg(s);
+  } else if(phase==='done'){
+    if(pc){lastPhase=phase;go('s-bye');}
+  }
+}
+
+// ── lobby ──
+function renderLobby(){
+  const s=GS,cnt=s.players.length;
+  const chips=s.players.map(p=>`<div class="player-chip"><div class="player-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>${esc(p.name)}${p.id===s.hostId?'<span class="host-badge">HOST</span>':''}</div>`).join('');
+  if(isHost){
+    document.getElementById('h-players').innerHTML=chips;
+    setText('h-count',cnt+' / 10');
+    const tag=document.getElementById('h-tag');
+    if(cnt>=2){tag.textContent='Ready!';tag.className='tag tag-g';}else{tag.textContent='Need '+(2-cnt)+' more';tag.className='tag tag-o';}
+    setBtnOn('h-start-btn',cnt>=2);
+    setText('h-wait',cnt>=2?cnt+' players ready — start when set!':'Waiting for at least 1 more player...');
+  } else {
+    const pl=document.getElementById('p-players');if(pl)pl.innerHTML=chips;
+    setText('p-lobby-title',cnt+' player'+(cnt!==1?'s':'')+' in the lobby!');
+  }
+}
+
+// ── intro ──
+function playIntro(){
+  go('s-intro');
+  const icons=document.getElementById('intro-icons'),logo=document.getElementById('intro-logo'),sub2=document.getElementById('intro-sub');
+  const tw=document.getElementById('tw-intro');if(tw)tw.textContent='';
+  setTimeout(()=>{icons.style.cssText='opacity:1;font-size:36px;animation:popIn .6s ease,bounce 2s .6s ease-in-out infinite'},300);
+  setTimeout(()=>{logo.style.cssText='opacity:1;animation:popIn .7s ease'},800);
+  setTimeout(()=>typewriter('tw-intro','Richie Robles',80,()=>setTimeout(()=>{sub2.style.cssText='opacity:1;animation:slideUp .5s ease;margin-top:16px;font-size:15px;color:var(--muted);font-weight:700;letter-spacing:1px'},300)),1600);
+}
+
+// ── pick restaurants ──
+function renderPick(s){
+  document.getElementById('r1').value='';document.getElementById('r2').value='';
+  document.getElementById('r1').disabled=false;document.getElementById('r2').disabled=false;
+  hideE('pick-err');setBtnOn('pick-btn',true);
+  go('s-pick');updatePickProg(s);
+}
+function updatePickProg(s){
+  const done=Object.keys(s.restaurants).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('pick-prog');if(p)p.style.width=pct+'%';
+  setText('pick-wait',sub.rests?'✅ Submitted! Waiting ('+done+'/'+total+')...':done+' / '+total+' players submitted');
+}
+function submitRestaurants(){
+  if(sub.rests)return;
+  const r1=document.getElementById('r1').value.trim(),r2=document.getElementById('r2').value.trim();
+  if(!r1||!r2){setE('pick-err','Enter both restaurant names!');return}
+  if(r1.toLowerCase()===r2.toLowerCase()){setE('pick-err','Pick 2 DIFFERENT restaurants!');return}
+  hideE('pick-err');sub.rests=true;
+  setBtnOn('pick-btn',false);document.getElementById('r1').disabled=true;document.getElementById('r2').disabled=true;
+  sendToHost({type:'submit_rests',id:myId,r1,r2});
+  if(GS)updatePickProg(GS);
+}
+
+// ── vote ──
+function renderVote(s){
+  myVote=null;sub.vote=false;hideE('v-err');setBtnOn('v-btn',false);
+  const myRests=(s.restaurants[myId]||[]).map(r=>r.toLowerCase());
+  let opts=s.currentOptions.filter(r=>!myRests.includes(r.toLowerCase()));
+  if(!opts.length)opts=[...s.currentOptions];
+  document.getElementById('v-options').innerHTML=opts.map((r,i)=>`<button class="vote-option" onclick="selectVote(this,'${r.replace(/'/g,"&#39;")}')" data-r="${esc(r)}"><div class="vote-emoji">${EMOJIS[i%EMOJIS.length]}</div><div class="vote-name">${esc(r)}</div></button>`).join('');
+  setText('v-round','Round '+(s.roundNum||1)+' · Voting');
+  const elim=s.eliminated||[];
+  document.getElementById('v-elim').innerHTML=elim.length?'❌ Eliminated: '+elim.map(r=>`<span class="elim-item">${esc(r)}</span>`).join(''):'';
+  go('s-vote');updateVoteProg(s);
+}
+function updateVoteProg(s){
+  const done=Object.keys(s.votes).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('v-prog');if(p)p.style.width=pct+'%';
+  setText('v-wait',sub.vote?'✅ Voted! Waiting ('+done+'/'+total+')...':done+' / '+total+' voted');
+}
+function selectVote(el,r){
+  if(sub.vote)return;
+  document.querySelectorAll('.vote-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');myVote=r;setBtnOn('v-btn',true);
+}
+function submitVote(){
+  if(!myVote||sub.vote)return;
+  sub.vote=true;setBtnOn('v-btn',false);
+  document.querySelectorAll('.vote-option').forEach(o=>{o.style.pointerEvents='none';o.style.opacity=o.classList.contains('selected')?'1':'.4'});
+  sendToHost({type:'vote',id:myId,restaurant:myVote});
+}
+
+// ── results ──
+function renderResults(s){
+  confetti();
+  setText('res-emoji',EMOJIS[Math.floor(Math.random()*EMOJIS.length)]);
+  setText('res-name',s.winner);
+  const tally=s.finalTally||{},total=Object.values(tally).reduce((a,b)=>a+b,0)||1;
+  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('res-bars').innerHTML=sorted.map(([r,c])=>{
+    const pct=Math.round(c/total*100);
+    return`<div class="result-bar-wrap"><div class="result-bar-label"><span>${r===s.winner?'🏆 ':''}${esc(r)}</span><span>${c} vote${c!==1?'s':''}</span></div><div class="result-bar-bg"><div class="result-bar-fill${r===s.winner?' win':''}" style="--w:${pct}%"></div></div></div>`;
+  }).join('');
+  document.getElementById('again-prog').style.width='0%';
+  setText('again-wait','Waiting for everyone to decide...');
+  setBtnOn('again-yes',true);setBtnOn('again-no',true);
+  go('s-results');
+}
+function updateAgainProg(s){
+  const done=Object.keys(s.playAgainVotes).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('again-prog');if(p)p.style.width=pct+'%';
+  setText('again-wait',sub.again?'✅ Voted! Waiting ('+done+'/'+total+')...':done+' / '+total+' decided');
+}
+function voteAgain(val){
+  if(sub.again)return;sub.again=true;
+  setBtnOn('again-yes',false);setBtnOn('again-no',false);
+  sendToHost({type:'play_again',id:myId,val});
+}
+
+// ── boot ──
+window.addEventListener('DOMContentLoaded',()=>typewriter('tw-home','Richie Robles'));
 </script>
 </body>
 </html>

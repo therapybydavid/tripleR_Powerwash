@@ -1,32 +1,654 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>tripleR Fooder</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg: #0a0a0c;
-      --darker: #060608;
-      --card: #121216;
-      --card2: #181822;
-      --accent: #00ff66;
-      --accent-dim: rgba(0,255,102,0.15);
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --err: #ef4444;
-      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Family Fooder</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--orange:#FF6B35;--yellow:#FFD23F;--red:#EE4266;--green:#06D6A0;--purple:#7B2D8B;--dark:#1A1A2E;--darker:#0F0F1A;--card:#16213E;--card2:#1a2744;--text:#F8F9FA;--muted:#8892a4;--border:rgba(255,255,255,0.08)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--darker);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,107,53,.06) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(238,66,102,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+.screen{display:none;min-height:100vh;width:100%;position:relative;z-index:1;padding:20px;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .4s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes glow{0%,100%{text-shadow:0 0 20px rgba(255,107,53,.5),0 0 40px rgba(255,107,53,.3)}50%{text-shadow:0 0 30px rgba(255,210,63,.7),0 0 60px rgba(255,210,63,.4)}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+.logo{font-family:'Fredoka One',cursive;font-size:clamp(48px,14vw,88px);background:linear-gradient(135deg,var(--orange),var(--yellow),var(--red));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite,glow 2s ease-in-out infinite;line-height:1;text-align:center}
+.logo-sm{font-family:'Fredoka One',cursive;font-size:34px;background:linear-gradient(135deg,var(--orange),var(--yellow),var(--red));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite;line-height:1;text-align:center;margin-bottom:4px}
+.logo-icons{display:flex;gap:10px;font-size:28px;justify-content:center;margin-bottom:8px;animation:bounce 2s ease-in-out infinite}
+.created-by{font-size:13px;color:var(--muted);text-align:center;font-weight:600;letter-spacing:.5px;margin-top:6px}
+.typewriter{color:var(--yellow);border-right:2px solid var(--yellow);white-space:nowrap;overflow:hidden}
+
+.btn{display:block;width:100%;max-width:360px;padding:16px 24px;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn+.btn{margin-top:12px}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;box-shadow:0 8px 24px rgba(255,107,53,.35)}
+.btn-primary:hover{box-shadow:0 10px 30px rgba(255,107,53,.5);transform:translateY(-1px)}
+.btn-secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--card2)}
+.btn-green{background:linear-gradient(135deg,var(--green),#04a87c);color:#0F3028;box-shadow:0 8px 24px rgba(6,214,160,.3);font-size:20px}
+.btn-red{background:linear-gradient(135deg,var(--red),#c7284a);color:#fff;box-shadow:0 8px 24px rgba(238,66,102,.3)}
+.btn:disabled{opacity:.4!important;cursor:not-allowed!important;transform:none!important}
+
+.input-field{width:100%;max-width:360px;padding:16px 20px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;outline:none;transition:border-color .2s,box-shadow .2s;text-align:center;letter-spacing:1px}
+.input-field:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,107,53,.15)}
+.input-field::placeholder{color:var(--muted);font-weight:600;letter-spacing:0}
+.input-field+.input-field{margin-top:10px}
+
+.code-box{background:linear-gradient(135deg,var(--card),var(--card2));border:2px solid var(--orange);border-radius:20px;padding:20px 32px;text-align:center;width:100%;max-width:360px}
+.code-label{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--orange);text-transform:uppercase}
+.code-value{font-family:'Fredoka One',cursive;font-size:52px;color:var(--yellow);letter-spacing:8px;line-height:1.1;text-shadow:0 0 20px rgba(255,210,63,.4)}
+
+.players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;max-width:420px}
+.player-chip{background:var(--card2);border:1px solid var(--border);border-radius:40px;padding:8px 16px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;animation:popIn .3s ease}
+.player-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+.host-badge{background:linear-gradient(135deg,var(--yellow),#ffb700);color:#3d2000;font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:10px;text-transform:uppercase;margin-left:4px}
+
+.section-title{font-size:22px;font-weight:900;text-align:center;margin-bottom:6px}
+.section-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px;font-weight:600}
+.round-badge{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center}
+
+.loader{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:20px auto}
+.dots-loader{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.dots-loader span{width:10px;height:10px;border-radius:50%;background:var(--orange);animation:bounce 1s ease-in-out infinite}
+.dots-loader span:nth-child(2){animation-delay:.15s;background:var(--yellow)}
+.dots-loader span:nth-child(3){animation-delay:.3s;background:var(--red)}
+
+.restaurant-input-wrap{position:relative;width:100%;max-width:360px;margin-bottom:10px}
+.rest-num{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:800;color:var(--orange)}
+.restaurant-input-wrap .input-field{padding-left:40px;text-align:left}
+
+.vote-option{width:100%;max-width:360px;background:var(--card);border:2px solid var(--border);border-radius:18px;padding:18px 20px;cursor:pointer;transition:all .2s;margin-bottom:10px;text-align:left;font-family:'Nunito',sans-serif;display:block}
+.vote-option:hover{border-color:var(--orange);background:var(--card2)}
+.vote-option.selected{border-color:var(--orange);background:rgba(255,107,53,.1)}
+.vote-emoji{font-size:32px;margin-bottom:6px}
+.vote-name{font-size:19px;font-weight:800;color:var(--text)}
+
+.result-bar-wrap{margin-bottom:14px;width:100%;max-width:400px}
+.result-bar-label{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px}
+.result-bar-bg{background:var(--card);border-radius:8px;height:12px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));width:var(--w);animation:barGrow 1s ease}
+.result-bar-fill.win{background:linear-gradient(90deg,var(--green),#04d48a)}
+
+.winner-card{background:linear-gradient(135deg,rgba(6,214,160,.15),rgba(6,214,160,.05));border:2px solid var(--green);border-radius:24px;padding:28px;text-align:center;width:100%;max-width:380px;animation:popIn .5s ease}
+.winner-emoji{font-size:64px;animation:bounce 1.5s ease-in-out infinite;display:block}
+.winner-name{font-family:'Fredoka One',cursive;font-size:38px;color:var(--green);margin:8px 0 4px;text-shadow:0 0 20px rgba(6,214,160,.4)}
+.winner-sub{font-size:14px;color:var(--muted);font-weight:600}
+
+.progress-bar{width:100%;max-width:360px;background:var(--card);border-radius:8px;height:6px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));transition:width .5s ease}
+
+.error-msg{background:rgba(238,66,102,.12);border:1px solid rgba(238,66,102,.3);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:#ff8fa8;text-align:center;width:100%;max-width:360px;margin-top:8px;animation:popIn .3s ease}
+.waiting-text{font-size:14px;color:var(--muted);font-weight:600;text-align:center;margin-top:8px}
+.pcount-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.25);border-radius:20px;padding:6px 14px;font-size:14px;font-weight:800;color:var(--orange)}
+.tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800}
+.tag-o{background:rgba(255,107,53,.15);color:var(--orange)}
+.tag-g{background:rgba(6,214,160,.15);color:var(--green)}
+.elim-list{margin-top:10px;font-size:13px;color:var(--muted);font-weight:600;text-align:center}
+.elim-item{display:inline-block;margin:3px 6px;text-decoration:line-through}
+.food-bg{position:fixed;font-size:30px;opacity:.04;pointer-events:none;z-index:0;animation:bounce 3s ease-in-out infinite}
+.confetti-piece{position:fixed;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;z-index:9999}
+</style>
+</head>
+<body>
+
+<div class="food-bg" style="top:8%;left:5%">🍕</div>
+<div class="food-bg" style="top:20%;right:8%;animation-delay:.5s">🍔</div>
+<div class="food-bg" style="top:45%;left:3%;animation-delay:1s">🌮</div>
+<div class="food-bg" style="top:65%;right:5%;animation-delay:1.5s">🍣</div>
+<div class="food-bg" style="bottom:15%;left:10%;animation-delay:2s">🍜</div>
+<div class="food-bg" style="bottom:8%;right:12%;animation-delay:.8s">🍦</div>
+
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="logo-icons">🍕 🍔 🌮</div>
+  <div class="logo">Family Fooder</div>
+  <div class="created-by">created by <span class="typewriter" id="tw-home"></span></div>
+  <div style="height:40px"></div>
+  <button class="btn btn-primary" onclick="go('s-create')">🎉 Host a Party</button>
+  <button class="btn btn-secondary" onclick="go('s-join')">🔗 Join a Party</button>
+  <div style="margin-top:24px;font-size:12px;color:var(--muted);text-align:center;font-weight:600;max-width:280px">Gather the crew. Pick a restaurant. No more arguing! 🍽️</div>
+</div>
+
+<!-- CREATE -->
+<div class="screen" id="s-create">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:24px"></div>
+  <div class="section-title">Host a Party 🎉</div>
+  <div class="section-sub">Enter your name to get started</div>
+  <input class="input-field" id="host-name" placeholder="Your name..." maxlength="16">
+  <div id="create-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="create-btn" onclick="hostParty()">Generate Party Code</button>
+  <button class="btn btn-secondary" onclick="go('s-home')">← Back</button>
+</div>
+
+<!-- JOIN -->
+<div class="screen" id="s-join">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:24px"></div>
+  <div class="section-title">Join a Party 🔗</div>
+  <div class="section-sub">Enter the code and your name</div>
+  <input class="input-field" id="join-code" placeholder="ABCD" maxlength="4" style="letter-spacing:6px;text-transform:uppercase">
+  <input class="input-field" id="join-name" placeholder="Your name..." maxlength="16" style="margin-top:10px">
+  <div id="join-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="join-btn" onclick="joinParty()">Join Party 🎉</button>
+  <button class="btn btn-secondary" onclick="go('s-home')">← Back</button>
+</div>
+
+<!-- LOBBY HOST -->
+<div class="screen" id="s-lobby-host">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="code-box">
+    <div class="code-label">Party Code</div>
+    <div class="code-value" id="h-code">----</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px;font-weight:600">Share this with your crew!</div>
+  </div>
+  <div style="height:16px"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <div class="pcount-badge">👥 <span id="h-count">1 / 10</span></div>
+    <div class="tag tag-o" id="h-tag">Need 1 more</div>
+  </div>
+  <div class="players-grid" id="h-players"></div>
+  <div style="height:20px"></div>
+  <button class="btn btn-green" id="h-start-btn" onclick="hostStart()" disabled>🚀 Start Game!</button>
+  <div class="waiting-text" id="h-wait">Waiting for players to join...</div>
+</div>
+
+<!-- LOBBY PLAYER -->
+<div class="screen" id="s-lobby-player">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="code-box">
+    <div class="code-label">You joined</div>
+    <div class="code-value" id="p-code">----</div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="section-title" id="p-lobby-title">In the lobby...</div>
+  <div class="dots-loader"><span></span><span></span><span></span></div>
+  <div class="players-grid" id="p-players"></div>
+  <div class="waiting-text">The host will start when everyone's ready!</div>
+</div>
+
+<!-- INTRO -->
+<div class="screen" id="s-intro" style="text-align:center">
+  <div id="intro-icons" class="logo-icons" style="opacity:0;font-size:36px">🍕 🍔 🌮 🍣 🍜</div>
+  <div class="logo" id="intro-logo" style="opacity:0">Family Fooder</div>
+  <div class="created-by" style="margin-top:10px">created by <span class="typewriter" id="tw-intro" style="font-size:15px"></span></div>
+  <div id="intro-sub" style="opacity:0;margin-top:16px;font-size:15px;color:var(--muted);font-weight:700;letter-spacing:1px">🎉 Let's find your next meal!</div>
+</div>
+
+<!-- PICK -->
+<div class="screen" id="s-pick">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="section-title">Pick Your Spots! 🍽️</div>
+  <div class="section-sub">Choose 2 restaurants you'd love to eat at</div>
+  <div class="restaurant-input-wrap">
+    <span class="rest-num">1</span>
+    <input class="input-field" id="r1" placeholder="Restaurant name..." maxlength="40">
+  </div>
+  <div class="restaurant-input-wrap">
+    <span class="rest-num">2</span>
+    <input class="input-field" id="r2" placeholder="Restaurant name..." maxlength="40">
+  </div>
+  <div id="pick-err" class="error-msg" style="display:none"></div>
+  <div style="height:14px"></div>
+  <button class="btn btn-primary" id="pick-btn" onclick="submitRestaurants()">Submit My Picks ✅</button>
+  <div style="height:12px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="pick-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="pick-wait">Waiting for everyone...</div>
+</div>
+
+<!-- VOTE -->
+<div class="screen" id="s-vote">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:8px"></div>
+  <div class="round-badge" id="v-round">Round 1 · Voting</div>
+  <div class="section-title">Which looks most desirable? 👀</div>
+  <div class="section-sub">Places others picked — not yours!</div>
+  <div id="v-options" style="width:100%;max-width:360px"></div>
+  <div id="v-err" class="error-msg" style="display:none"></div>
+  <div style="height:8px"></div>
+  <button class="btn btn-primary" id="v-btn" onclick="submitVote()" disabled>Cast My Vote 🗳️</button>
+  <div style="height:8px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="v-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="v-wait">Waiting for everyone to vote...</div>
+  <div class="elim-list" id="v-elim"></div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="s-results">
+  <div class="logo-sm">Family Fooder</div>
+  <div style="height:12px"></div>
+  <div class="winner-card">
+    <span class="winner-emoji" id="res-emoji">🏆</span>
+    <div class="winner-name" id="res-name">Winner!</div>
+    <div class="winner-sub">The family has fooded!</div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="section-title" style="font-size:18px">Final Votes</div>
+  <div id="res-bars" style="width:100%;max-width:400px;margin-top:12px"></div>
+  <div style="height:20px"></div>
+  <div class="section-title" style="font-size:18px;margin-bottom:12px">What now? 🤔</div>
+  <button class="btn btn-green" id="again-yes" onclick="voteAgain('yes')">🔁 Play Again!</button>
+  <button class="btn btn-red" id="again-no" onclick="voteAgain('no')" style="margin-top:10px">✅ We've Fooded!</button>
+  <div style="height:8px"></div>
+  <div class="progress-bar"><div class="progress-fill" id="again-prog" style="width:0%"></div></div>
+  <div class="waiting-text" id="again-wait">Waiting for the group to decide...</div>
+</div>
+
+<!-- GOODBYE -->
+<div class="screen" id="s-bye" style="text-align:center">
+  <div class="logo-icons" style="font-size:40px">🍽️ 🥂 🍾</div>
+  <div class="logo" style="margin-bottom:8px">Family Fooder</div>
+  <div class="section-title" style="font-size:24px;margin-top:16px">The Family Has Fooded! 🎊</div>
+  <div style="font-size:15px;color:var(--muted);font-weight:600;margin-top:8px;max-width:300px;text-align:center">Hope you enjoy the meal. Come back next time! 🍴</div>
+  <div style="height:28px"></div>
+  <button class="btn btn-primary" onclick="location.reload()">Back to Home 🏠</button>
+</div>
+
+<script>
+const EMOJIS=['🍕','🍔','🌮','🍣','🍜','🍦','🥩','🍝','🍱','🥗','🍛','🥪','🍩','🌯','🥘','🦞','🍗','🍟','🥐','🥞'];
+const COLORS=['#FF6B35','#EE4266','#06D6A0','#7B2D8B','#FFD23F','#3A86FF','#FF006E','#8338EC','#FB5607','#2EC4B6'];
+
+// ── identity ──
+let myId = Math.random().toString(36).slice(2,9);
+let myName='', myCode='', isHost=false;
+
+// ── peer refs ──
+let peer=null, hostConn=null, playerConns=[];
+
+// ── game state (authoritative on host) ──
+let GS=null;
+
+// ── submission flags ──
+let sub={rests:false, vote:false, again:false};
+let myVote=null;
+let lastPhase='', lastRound=0;
+
+// ── utils ──
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function setE(id,txt){const e=document.getElementById(id);if(e){e.textContent=txt;e.style.display='block'}}
+function hideE(id){const e=document.getElementById(id);if(e)e.style.display='none'}
+function setBtnOn(id,on){const b=document.getElementById(id);if(!b)return;b.disabled=!on;b.style.opacity=on?'1':'.4'}
+function setText(id,txt){const e=document.getElementById(id);if(e)e.textContent=txt}
+
+function typewriter(elId,text,speed,done){
+  const el=document.getElementById(elId);if(!el)return;
+  el.textContent='';let i=0;
+  const t=setInterval(()=>{if(i<text.length)el.textContent+=text[i++];else{clearInterval(t);done&&done()}},speed||70);
+}
+
+function genCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
+}
+
+function confetti(){
+  const cols=['#FF6B35','#FFD23F','#EE4266','#06D6A0','#7B2D8B','#3A86FF'];
+  for(let i=0;i<60;i++)setTimeout(()=>{
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${Math.random()*8+6}px;height:${Math.random()*8+6}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*2+2}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*60);
+}
+
+// ── messaging ──
+function broadcast(msg){playerConns.forEach(c=>{try{c.send(msg)}catch(e){}})}
+function sendToHost(msg){
+  if(isHost){onHostMsg(msg,null)}
+  else if(hostConn&&hostConn.open){try{hostConn.send(msg)}catch(e){}}
+}
+function pushState(){
+  broadcast({type:'state',s:GS});
+  onState(GS); // host sees its own state
+}
+
+// ── new game state ──
+function newGS(code,hostId,hostName){
+  return{code,hostId,phase:'lobby',
+    players:[{id:hostId,name:hostName,color:COLORS[0]}],
+    restaurants:{},allRestaurants:[],eliminated:[],
+    currentOptions:[],votes:{},roundNum:1,
+    winner:null,finalTally:null,playAgainVotes:{}};
+}
+
+// ══════════════════════════════════════════
+// HOST
+// ══════════════════════════════════════════
+function hostParty(){
+  const name=document.getElementById('host-name').value.trim();
+  if(!name){setE('create-err','Enter your name!');return}
+  hideE('create-err');
+  setBtnOn('create-btn',false);
+  setText('create-btn','Connecting...');
+
+  myName=name;myId=Math.random().toString(36).slice(2,9);isHost=true;myCode=genCode();
+
+  peer=new Peer('ff-'+myCode,{debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+
+  peer.on('open',()=>{
+    GS=newGS(myCode,myId,name);
+    setText('h-code',myCode);
+    go('s-lobby-host');
+    renderLobby();
+  });
+
+  peer.on('error',err=>{
+    if(err.type==='unavailable-id'){peer.destroy();peer=null;setBtnOn('create-btn',true);setText('create-btn','Generate Party Code');hostParty();}
+    else{setE('create-err','Error: '+err.message);setBtnOn('create-btn',true);setText('create-btn','Generate Party Code');}
+  });
+
+  peer.on('connection',conn=>{
+    conn.on('open',()=>{
+      playerConns.push(conn);
+      conn.on('data',msg=>onHostMsg(msg,conn));
+      conn.on('close',()=>onDisconnect(conn));
+      conn.on('error',()=>onDisconnect(conn));
+      // Send current state to the newly connected peer
+      conn.send({type:'state',s:GS});
+    });
+  });
+}
+
+function onDisconnect(conn){
+  playerConns=playerConns.filter(c=>c!==conn);
+  if(!GS)return;
+  if(conn._pid){GS.players=GS.players.filter(p=>p.id!==conn._pid);pushState();}
+}
+
+function onHostMsg(msg,conn){
+  if(!GS)return;
+
+  if(msg.type==='join'){
+    if(GS.phase!=='lobby'){conn&&conn.send({type:'err',msg:'Game already started!'});return}
+    if(GS.players.length>=10){conn&&conn.send({type:'err',msg:'Party is full!'});return}
+    const nameTaken=GS.players.find(p=>p.name.toLowerCase()===msg.name.toLowerCase());
+    if(nameTaken){conn&&conn.send({type:'err',msg:'That name is taken! Pick another.'});return}
+    if(conn)conn._pid=msg.id;
+    GS.players.push({id:msg.id,name:msg.name,color:COLORS[GS.players.length%COLORS.length]});
+    pushState();return;
+  }
+
+  if(msg.type==='submit_rests'){
+    if(GS.phase!=='picking')return;
+    const taken=Object.values(GS.restaurants).flat().map(s=>s.toLowerCase());
+    const r1l=msg.r1.toLowerCase(),r2l=msg.r2.toLowerCase();
+    const dupe=taken.includes(r1l)?msg.r1:taken.includes(r2l)?msg.r2:null;
+    if(dupe){
+      const errMsg={type:'pick_err',msg:`"${dupe}" was already picked! Choose a different place.`};
+      if(msg.id===myId)onState({...GS,_pickErr:errMsg.msg});
+      else{const c=playerConns.find(c=>c._pid===msg.id);if(c)c.send(errMsg);}
+      return;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
-    .screen { display: none; width: 100%; max-width: 480px; margin: 0 auto; padding: 24px 16px; flex: 1; flex-direction: column; animation: fadeIn .4s ease; }
-    .screen.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    
-    h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; color: #fff; text-align: center; }
-    h1 span { color: var(--accent); }
-    .subtitle { color: var(--muted); font-size: 14px; text-align: center; margin-bottom: 32px; }
-    
-    .card { background: var(--card); border: 1px solid #1e293b; border-
+    GS.restaurants[msg.id]=[msg.r1,msg.r2];
+    GS.allRestaurants=[...new Set(Object.values(GS.restaurants).flat())];
+    pushState();
+    if(Object.keys(GS.restaurants).length===GS.players.length){
+      GS.currentOptions=[...GS.allRestaurants];GS.votes={};GS.phase='voting';pushState();
+    }
+    return;
+  }
+
+  if(msg.type==='vote'){
+    if(GS.phase!=='voting')return;
+    GS.votes[msg.id]=msg.restaurant;pushState();
+    if(Object.keys(GS.votes).length===GS.players.length)tallyVotes();
+    return;
+  }
+
+  if(msg.type==='play_again'){
+    GS.playAgainVotes[msg.id]=msg.val;pushState();
+    if(Object.keys(GS.playAgainVotes).length===GS.players.length){
+      const yes=Object.values(GS.playAgainVotes).filter(v=>v==='yes').length;
+      if(yes>GS.players.length/2)resetGame();else{GS.phase='done';pushState();}
+    }
+    return;
+  }
+}
+
+function tallyVotes(){
+  const tally={};
+  Object.values(GS.votes).forEach(v=>{tally[v]=(tally[v]||0)+1});
+  const total=Object.values(tally).reduce((a,b)=>a+b,0);
+  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  const topCount=sorted[0][1],minCount=sorted[sorted.length-1][1];
+  if(topCount>total/2||sorted.length===1){
+    GS.winner=sorted[0][0];GS.finalTally=tally;GS.phase='results';pushState();
+  } else {
+    const toElim=sorted.filter(([,c])=>c===minCount).map(([r])=>r);
+    const newActive=GS.currentOptions.filter(r=>!toElim.includes(r));
+    if(newActive.length<=1){GS.winner=sorted[0][0];GS.finalTally=tally;GS.phase='results';}
+    else{GS.eliminated=[...GS.eliminated,...toElim];GS.currentOptions=newActive;GS.votes={};GS.roundNum=(GS.roundNum||1)+1;}
+    pushState();
+  }
+}
+
+function resetGame(){
+  GS={...GS,phase:'lobby',restaurants:{},allRestaurants:[],eliminated:[],currentOptions:[],votes:{},roundNum:1,winner:null,finalTally:null,playAgainVotes:{}};
+  sub={rests:false,vote:false,again:false};myVote=null;
+  pushState();
+}
+
+function hostStart(){
+  if(!GS||GS.players.length<2)return;
+  GS.phase='intro';pushState();
+}
+
+// ══════════════════════════════════════════
+// PLAYER
+// ══════════════════════════════════════════
+function joinParty(){
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  const name=document.getElementById('join-name').value.trim();
+  if(!code||code.length!==4){setE('join-err','Enter a valid 4-letter code!');return}
+  if(!name){setE('join-err','Enter your name!');return}
+  hideE('join-err');
+  setBtnOn('join-btn',false);setText('join-btn','Connecting...');
+
+  myName=name;myCode=code;isHost=false;myId=Math.random().toString(36).slice(2,9);
+
+  peer=new Peer(undefined,{debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+
+  let joined=false;
+
+  peer.on('open',()=>{
+    const conn=peer.connect('ff-'+code,{reliable:true});
+    hostConn=conn;
+    conn.on('open',()=>{
+      joined=true;
+      conn.send({type:'join',id:myId,name});
+      setText('p-code',code);
+      go('s-lobby-player');
+      setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+    });
+    conn.on('data',msg=>onPlayerMsg(msg));
+    conn.on('close',()=>{if(joined)alert('Lost connection to host. Refresh to rejoin.');});
+    conn.on('error',()=>{if(joined)alert('Lost connection to host. Refresh to rejoin.');});
+    setTimeout(()=>{
+      if(!joined){
+        setE('join-err',"Can't find that party. Is the code correct?");
+        setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+        go('s-join');
+        try{peer.destroy()}catch(e){}
+      }
+    },9000);
+  });
+
+  peer.on('error',err=>{
+    setE('join-err','Connection error: '+err.message);
+    setBtnOn('join-btn',true);setText('join-btn','Join Party 🎉');
+  });
+}
+
+function onPlayerMsg(msg){
+  if(msg.type==='state'){onState(msg.s);return}
+  if(msg.type==='err'){alert(msg.msg);return}
+  if(msg.type==='pick_err'){
+    setE('pick-err',msg.msg);sub.rests=false;
+    setBtnOn('pick-btn',true);
+    document.getElementById('r1').disabled=false;
+    document.getElementById('r2').disabled=false;
+    return;
+  }
+}
+
+// ══════════════════════════════════════════
+// STATE RENDERER — runs on ALL devices
+// ══════════════════════════════════════════
+function onState(s){
+  if(!s)return;
+  GS=s;
+  const phase=s.phase,round=s.roundNum||1;
+  const pc=phase!==lastPhase,rc=round!==lastRound;
+  lastRound=round;
+
+  if(phase==='lobby'){
+    lastPhase=phase;renderLobby();
+  } else if(phase==='intro'){
+    if(pc){lastPhase=phase;playIntro();}
+  } else if(phase==='picking'){
+    if(pc){lastPhase=phase;sub={rests:false,vote:false,again:false};myVote=null;renderPick(s);}
+    else updatePickProg(s);
+    // host-side pick error
+    if(s._pickErr&&isHost){setE('pick-err',s._pickErr);sub.rests=false;setBtnOn('pick-btn',true);document.getElementById('r1').disabled=false;document.getElementById('r2').disabled=false;}
+  } else if(phase==='voting'){
+    if(pc||rc){lastPhase=phase;sub.vote=false;myVote=null;renderVote(s);}
+    else updateVoteProg(s);
+  } else if(phase==='results'){
+    if(pc){lastPhase=phase;sub.again=false;renderResults(s);}
+    else updateAgainProg(s);
+  } else if(phase==='done'){
+    if(pc){lastPhase=phase;go('s-bye');}
+  }
+}
+
+// ── lobby ──
+function renderLobby(){
+  const s=GS,cnt=s.players.length;
+  const chips=s.players.map(p=>`<div class="player-chip"><div class="player-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>${esc(p.name)}${p.id===s.hostId?'<span class="host-badge">HOST</span>':''}</div>`).join('');
+  if(isHost){
+    document.getElementById('h-players').innerHTML=chips;
+    setText('h-count',cnt+' / 10');
+    const tag=document.getElementById('h-tag');
+    if(cnt>=2){tag.textContent='Ready!';tag.className='tag tag-g';}else{tag.textContent='Need '+(2-cnt)+' more';tag.className='tag tag-o';}
+    setBtnOn('h-start-btn',cnt>=2);
+    setText('h-wait',cnt>=2?cnt+' players ready — start when set!':'Waiting for at least 1 more player...');
+  } else {
+    const pl=document.getElementById('p-players');if(pl)pl.innerHTML=chips;
+    setText('p-lobby-title',cnt+' player'+(cnt!==1?'s':'')+' in the lobby!');
+  }
+}
+
+// ── intro ──
+function playIntro(){
+  go('s-intro');
+  const icons=document.getElementById('intro-icons'),logo=document.getElementById('intro-logo'),sub2=document.getElementById('intro-sub');
+  const tw=document.getElementById('tw-intro');if(tw)tw.textContent='';
+  setTimeout(()=>{icons.style.cssText='opacity:1;font-size:36px;animation:popIn .6s ease,bounce 2s .6s ease-in-out infinite'},300);
+  setTimeout(()=>{logo.style.cssText='opacity:1;animation:popIn .7s ease'},800);
+  setTimeout(()=>typewriter('tw-intro','Richie Robles',80,()=>setTimeout(()=>{sub2.style.cssText='opacity:1;animation:slideUp .5s ease;margin-top:16px;font-size:15px;color:var(--muted);font-weight:700;letter-spacing:1px'},300)),1600);
+  // After animation finishes, host advances everyone to the picking phase
+  if(isHost){
+    setTimeout(()=>{GS.phase='picking';pushState();},5000);
+  }
+}
+
+// ── pick restaurants ──
+function renderPick(s){
+  document.getElementById('r1').value='';document.getElementById('r2').value='';
+  document.getElementById('r1').disabled=false;document.getElementById('r2').disabled=false;
+  hideE('pick-err');setBtnOn('pick-btn',true);
+  go('s-pick');updatePickProg(s);
+}
+function updatePickProg(s){
+  const done=Object.keys(s.restaurants).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('pick-prog');if(p)p.style.width=pct+'%';
+  setText('pick-wait',sub.rests?'✅ Submitted! Waiting ('+done+'/'+total+')...':done+' / '+total+' players submitted');
+}
+function submitRestaurants(){
+  if(sub.rests)return;
+  const r1=document.getElementById('r1').value.trim(),r2=document.getElementById('r2').value.trim();
+  if(!r1||!r2){setE('pick-err','Enter both restaurant names!');return}
+  if(r1.toLowerCase()===r2.toLowerCase()){setE('pick-err','Pick 2 DIFFERENT restaurants!');return}
+  hideE('pick-err');sub.rests=true;
+  setBtnOn('pick-btn',false);document.getElementById('r1').disabled=true;document.getElementById('r2').disabled=true;
+  sendToHost({type:'submit_rests',id:myId,r1,r2});
+  if(GS)updatePickProg(GS);
+}
+
+// ── vote ──
+function renderVote(s){
+  myVote=null;sub.vote=false;hideE('v-err');setBtnOn('v-btn',false);
+  const myRests=(s.restaurants[myId]||[]).map(r=>r.toLowerCase());
+  let opts=s.currentOptions.filter(r=>!myRests.includes(r.toLowerCase()));
+  if(!opts.length)opts=[...s.currentOptions];
+  document.getElementById('v-options').innerHTML=opts.map((r,i)=>`<button class="vote-option" onclick="selectVote(this,'${r.replace(/'/g,"&#39;")}')" data-r="${esc(r)}"><div class="vote-emoji">${EMOJIS[i%EMOJIS.length]}</div><div class="vote-name">${esc(r)}</div></button>`).join('');
+  setText('v-round','Round '+(s.roundNum||1)+' · Voting');
+  const elim=s.eliminated||[];
+  document.getElementById('v-elim').innerHTML=elim.length?'❌ Eliminated: '+elim.map(r=>`<span class="elim-item">${esc(r)}</span>`).join(''):'';
+  go('s-vote');updateVoteProg(s);
+}
+function updateVoteProg(s){
+  const done=Object.keys(s.votes).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('v-prog');if(p)p.style.width=pct+'%';
+  setText('v-wait',sub.vote?'✅ Voted! Waiting ('+done+'/'+total+')...':done+' / '+total+' voted');
+}
+function selectVote(el,r){
+  if(sub.vote)return;
+  document.querySelectorAll('.vote-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');myVote=r;setBtnOn('v-btn',true);
+}
+function submitVote(){
+  if(!myVote||sub.vote)return;
+  sub.vote=true;setBtnOn('v-btn',false);
+  document.querySelectorAll('.vote-option').forEach(o=>{o.style.pointerEvents='none';o.style.opacity=o.classList.contains('selected')?'1':'.4'});
+  sendToHost({type:'vote',id:myId,restaurant:myVote});
+}
+
+// ── results ──
+function renderResults(s){
+  confetti();
+  setText('res-emoji',EMOJIS[Math.floor(Math.random()*EMOJIS.length)]);
+  setText('res-name',s.winner);
+  const tally=s.finalTally||{},total=Object.values(tally).reduce((a,b)=>a+b,0)||1;
+  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('res-bars').innerHTML=sorted.map(([r,c])=>{
+    const pct=Math.round(c/total*100);
+    return`<div class="result-bar-wrap"><div class="result-bar-label"><span>${r===s.winner?'🏆 ':''}${esc(r)}</span><span>${c} vote${c!==1?'s':''}</span></div><div class="result-bar-bg"><div class="result-bar-fill${r===s.winner?' win':''}" style="--w:${pct}%"></div></div></div>`;
+  }).join('');
+  document.getElementById('again-prog').style.width='0%';
+  setText('again-wait','Waiting for everyone to decide...');
+  setBtnOn('again-yes',true);setBtnOn('again-no',true);
+  go('s-results');
+}
+function updateAgainProg(s){
+  const done=Object.keys(s.playAgainVotes).length,total=s.players.length,pct=Math.round(done/total*100);
+  const p=document.getElementById('again-prog');if(p)p.style.width=pct+'%';
+  setText('again-wait',sub.again?'✅ Voted! Waiting ('+done+'/'+total+')...':done+' / '+total+' decided');
+}
+function voteAgain(val){
+  if(sub.again)return;sub.again=true;
+  setBtnOn('again-yes',false);setBtnOn('again-no',false);
+  sendToHost({type:'play_again',id:myId,val});
+}
+
+// ── boot ──
+window.addEventListener('DOMContentLoaded',()=>typewriter('tw-home','Richie Robles'));
+</script>
+</body>
+</html>
